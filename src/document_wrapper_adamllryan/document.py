@@ -35,6 +35,10 @@ class Sentence:
         self.score = score
         self.start = self.text[0].start
         self.end = self.text[-1].end
+        self.embedding = None
+
+    def assign_embedding(self, embedding: list[float]):
+        self.embedding = embedding
 
     def __str__(self):
         return " ".join([seg.text for seg in self.text])
