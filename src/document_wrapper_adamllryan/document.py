@@ -25,6 +25,7 @@ class Sentence:
     score: float
     start: float
     end: float
+    embedding: list[float]
 
     def __init__(self, text: list[Segment] | dict, score: float = None):
         if isinstance(text, dict):
