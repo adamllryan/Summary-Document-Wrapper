@@ -72,8 +72,11 @@ class Sentence:
                 return seg
         return None
 
-    def get_plain_text(self) -> str:
-        return " ".join([seg.text for seg in self.transcript])
+    def get_formatted_text(self) -> str:
+        most_frequent_speaker = max(set([seg.speaker for seg in self.transcript]), key=[seg.speaker for seg in self.transcript].count)
+        if most_frequent_speaker is None:
+            most_frequent_speaker = "UNKNOWN"
+        return most_frequent_speaker + ": " + self.__str__()
 
 
 class Document:
@@ -89,7 +92,10 @@ class Document:
         return self.__str__()
 
     def get_plain_text(self) -> str:
-        return "\n".join([s.get_plain_text() for s in self.sentences])
+        return "\n".join([str(s) for s in self.sentences])
+
+    def get_formatted_text(self) -> str:
+        return "\n".join([s.get_formatted_text() for s in self.sentences])
 
     def find_sentence(self, ts: float) -> Sentence | None:
         for s in self.sentences:
