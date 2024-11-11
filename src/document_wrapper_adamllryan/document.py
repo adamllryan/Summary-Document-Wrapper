@@ -3,24 +3,25 @@ from typing import Tuple
 class Segment:
     transcript: str
     text: str
-    formatted_text: str
-    speaker: str
-    start: float
+    formatted_text: str | None
+    speaker: str | None
+    start: float 
     end: float
     timestamp: Tuple[float, float]
     frames: list[float] # Change
-    waveform: list[float] # Change
+    # waveform: list[float] # Change
 
-    def __init__(self, args) -> None:
-        self.text = args.get("text")
-        self.transcript = self.text
-        self.formatted_text = args.get("formatted_text")
-        self.speaker = args.get("speaker")
-        self.start = args.get("start")
-        self.end = args.get("end")
-        self.timestamp = args.get("timestamp")
-        self.frames = args.get("frames")
-        self.waveform = args.get("waveform")
+    def __init__(self, args: dict) -> None:
+        self.transcript = args['text']
+        self.text = args['text']
+        self.formatted_text = args['formatted_text'] if 'formatted_text' in args else None
+        self.speaker = args['speaker'] if 'speaker' in args else None
+        self.start = args['start']
+        self.end = args['end']
+        self.timestamp = args['timestamp']
+        self.frames = args['frames'] # Change
+        # self.waveform = args['waveform'] # Change
+
 
     def __str__(self) -> str:
         return self.text
@@ -39,30 +40,22 @@ class Sentence:
     text: str
     start: float
     end: float
-    embeddings: dict[str, list[float]]
+    embeddings: dict[str, list[float]] | None
     text_score: float
     keyframe_score: int
     aggregated_score: float
 
-    def __init__(self, args) -> None:
-        sentence = args.get("sentence")
-        if sentence:
-            self.transcript = [Segment(s) for s in sentence]
-        else:
-            return
+    def __init__(self, sentence: dict) -> None:
+        self.transcript = [Segment(seg) for seg in sentence]
         self.text = " ".join([seg.text for seg in self.transcript])
-        self.start = args.get("start")
-        self.end = args.get("end")
-        self.embeddings = args.get("embeddings")
-        self.text_score = args.get("text_score")
-        if self.text_score is None:
-            self.text_score = 0
-        self.keyframe_score = args.get("keyframe_score")
-        if self.keyframe_score is None:
-            self.keyframe_score = 0
-        self.aggregated_score = args.get("aggregated_score")
-        if self.aggregated_score is None:
-            self.aggregated_score = 0
+        self.start = self.transcript[0].start
+        self.end = self.transcript[-1].end
+        self.embeddings = None
+        self.text_score = 0.0
+        self.keyframe_score = 0
+        self.aggregated_score = 0.0
+
+
 
     def __str__(self) -> str:
         return self.text
@@ -153,12 +146,8 @@ class Document:
         for r in raw:
             sentence.append(r)
             if r['text'][-1] == '.':
-                sentences.append(Sentence({'sentence': sentence, 
-                                           'start': sentence[0]['start'],
-                                             'end': sentence[-1]['end']}))
+                sentences.append(sentence)
                 sentence = []
         if sentence:
-            sentences.append(Sentence({'sentence': sentence, 
-                                       'start': sentence[0]['start'],
-                                         'end': sentence[-1]['end']}))
+            sentences.append(sentence)
         return sentences
