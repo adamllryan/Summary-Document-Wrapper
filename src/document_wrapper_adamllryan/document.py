@@ -8,7 +8,7 @@ class Segment:
     start: float 
     end: float
     timestamp: Tuple[float, float]
-    frames: list[float] # Change
+    frames: list[float] | None
     # waveform: list[float] # Change
 
     def __init__(self, args: dict) -> None:
@@ -19,7 +19,7 @@ class Segment:
         self.start = args['start']
         self.end = args['end']
         self.timestamp = args['timestamp']
-        self.frames = args['frames'] # Change
+        self.frames = args['frames'] if 'frames' in args else None
         # self.waveform = args['waveform'] # Change
 
 
