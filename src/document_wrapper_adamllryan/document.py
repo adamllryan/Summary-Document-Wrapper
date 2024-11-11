@@ -55,7 +55,14 @@ class Sentence:
         self.end = args.get("end")
         self.embeddings = args.get("embeddings")
         self.text_score = args.get("text_score")
+        if self.text_score is None:
+            self.text_score = 0
         self.keyframe_score = args.get("keyframe_score")
+        if self.keyframe_score is None:
+            self.keyframe_score = 0
+        self.aggregated_score = args.get("aggregated_score")
+        if self.aggregated_score is None:
+            self.aggregated_score = 0
 
     def __str__(self) -> str:
         return self.text
