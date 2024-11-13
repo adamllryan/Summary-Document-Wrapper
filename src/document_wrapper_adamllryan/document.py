@@ -139,6 +139,16 @@ class Document:
         max_keyframe_score = max(keyframe_scores)
 
         for s in self.sentences:
+            if max_text_score == min_text_score and max_keyframe_score == min_keyframe_score:
+                s.aggregated_score = 0
+                continue
+            elif max_text_score == min_text_score:
+                s.aggregated_score = s.keyframe_score
+                continue
+            elif max_keyframe_score == min_keyframe_score:
+                s.aggregated_score = s.text_score 
+                continue
+
             s.aggregated_score = alpha * (s.text_score - min_text_score) / (max_text_score - min_text_score) + \
                                  (1 - alpha) * (s.keyframe_score - min_keyframe_score) / (max_keyframe_score - min_keyframe_score)
 
