@@ -18,7 +18,7 @@ class BatchRunner:
         :param config: Dictionary containing pipeline settings (models, directories, etc.)
         """
         self.config = config
-        self.video_processor = VideoProcessor(config.get("models", {}).get("transcription"))
+        self.video_processor = VideoProcessor(config.get("models", {}))
         self.summarizer = Summarizer(config.get("summarization_model", "facebook/bart-large-cnn"))
         self.evaluator = Evaluation()
     
