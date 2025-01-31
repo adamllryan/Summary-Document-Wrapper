@@ -19,7 +19,7 @@ class VideoProcessor:
             model_config.get("task"),
             model=model_config.get("model"),
             tokenizer=model_config.get("tokenizer", None),
-            chunk_length=model_config.get("chunk_length", None),
+            chunk_length_s=model_config.get("chunk_length", None),
             batch_size=model_config.get("batch_size", None),
             device=model_config.get("default", -1)
         ) for track, model_config in model_configs.items()}
