@@ -3,7 +3,7 @@ import json
 from typing import List, Dict, Any
 from transformers import pipeline
 from ..analysis.summarizer import Summarizer
-from .analyzer import VideoProcessor
+from .video_processor import VideoProcessor
 from ..analysis.evaluator import Evaluator 
 
 class BatchRunner:
@@ -18,7 +18,7 @@ class BatchRunner:
         :param config: Dictionary containing pipeline settings (models, directories, etc.)
         """
         self.config = config
-        self.video_processor = VideoProcessor(config.get("models", {}))
+        self.video_processor = VideoProcessor(config.get("models", {}).get("transcription", "openai/whisper-large-v3-turbo"))
         self.summarizer = Summarizer(config.get("summarization_model", "facebook/bart-large-cnn"))
         self.evaluator = Evaluation()
     
