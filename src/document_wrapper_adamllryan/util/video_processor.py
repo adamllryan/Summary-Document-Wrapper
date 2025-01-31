@@ -16,8 +16,8 @@ class VideoProcessor:
         :param model_configs: Dictionary mapping track names to model names
         """
         self.pipelines = {track: pipeline(
-            model_config["task"],
-            model=model_config["model"],
+            model_config.get("task"),
+            model=model_config.get("model"),
             tokenizer=model_config.get("tokenizer", None),
             chunk_length=model_config.get("chunk_length", None),
             batch_size=model_config.get("batch_size", None),
