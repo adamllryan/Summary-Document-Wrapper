@@ -15,7 +15,14 @@ class VideoProcessor:
         Initialize the video processor with specified Hugging Face models.
         :param model_configs: Dictionary mapping track names to model names
         """
-        self.pipelines = {track: pipeline(model_name) for track, model_name in model_configs.items()}
+        self.pipelines = {track: pipeline(
+            model_config["task"],
+            model=model_config["model"],
+            tokenizer=model_config.get("tokenizer", None),
+            chunk_length=model_config.get("chunk_length", None),
+            batch_size=model_config.get("batch_size", None),
+            device=model_config.get("default", -1)
+        ) for track, model_config in model_configs.items()}
         self.tracks = {}
     
     def register_track(self, track_name: str, processor: Callable[[str, str], Any]) -> None:
