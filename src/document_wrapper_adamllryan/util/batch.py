@@ -2,9 +2,9 @@ import os
 import json
 from typing import List, Dict, Any
 from transformers import pipeline
-from doc.summarizer import Summarizer
-from doc.video_processor import VideoProcessor
-from analysis.evaluation import Evaluation
+from ..doc.summarizer import Summarizer
+from ..doc.video import VideoProcessor
+from ..analysis.evaluation import Evaluation
 
 class BatchRunner:
     """
