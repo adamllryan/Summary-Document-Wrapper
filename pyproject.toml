@@ -12,7 +12,18 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "yt-dlp",
+    "pyannote.audio",
+    "ujson",
+    "sentence-transformers",
+    "torch",
+    "moviepy",
+    "spacy",
+]
 
 [project.urls]
 Homepage = "https://github.com/adamllryan/Summary-Document-Wrapper"
 Issues = "https://github.com/adamllryan/Summary-Document-Wrapper/issues"
+
+
