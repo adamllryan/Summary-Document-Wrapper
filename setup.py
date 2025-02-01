@@ -4,6 +4,7 @@ setup(
     name="document_wrapper_adamllryan",
     version="0.1",
     packages=["document_wrapper_adamllryan"],
+    include_package_data=True,
     install_requires=[
         "yt-dlp",
         'pyannote.audio',
