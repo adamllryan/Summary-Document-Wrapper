@@ -22,6 +22,13 @@ dependencies = [
     "spacy",
 ]
 
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["document_wrapper_adamllryan"]
+
 [project.urls]
 Homepage = "https://github.com/adamllryan/Summary-Document-Wrapper"
 Issues = "https://github.com/adamllryan/Summary-Document-Wrapper/issues"
