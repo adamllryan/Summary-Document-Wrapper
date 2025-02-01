@@ -44,6 +44,15 @@ class VideoDownloader:
         video_folder = os.path.join(self.download_dir, video_id)
         return os.path.exists(os.path.join(video_folder, "summary.mp4"))
 
+    def is_video_downloaded(self, video_id: str) -> bool:
+        """
+        Checks if a video has already been downloaded.
+        :param video_id: YouTube video ID
+        :return: True if video exists, False otherwise
+        """
+        video_folder = os.path.join(self.download_dir, video_id)
+        return os.path.exists(os.path.join(video_folder, "source_video.mp4"))
+
     def get_next_unprocessed_video(self) -> Optional[str]:
         """
         Finds the next unprocessed video in the directory.
