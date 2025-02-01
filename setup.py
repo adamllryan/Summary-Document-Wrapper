@@ -8,6 +8,11 @@ setup(
     ]),
     install_requires=[
         "yt-dlp",
-        "rouge"
+        'pyannote.audio',
+        'ujson',
+        'sentence_transformers',
+        'moviepy',
+        'spacy',
+        'torch',
     ]
 )
