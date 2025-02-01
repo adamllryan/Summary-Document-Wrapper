@@ -48,3 +48,19 @@ class DocumentAnalysis:
         if sentence:
             sentences.append(sentence)
         return sentences
+
+    @staticmethod
+    def list_to_document(transcript_data: List[dict]) -> Document:
+        """Convert a list of transcript data into a Document object."""
+        sentences, current_sentence = [], []
+
+        for entry in transcript_data:
+            current_sentence.append(entry)
+            if entry["text"].strip().endswith("."):
+                sentences.append(current_sentence)
+                current_sentence = []
+
+        if current_sentence:
+            sentences.append(current_sentence)
+
+        return Document(sentences)
