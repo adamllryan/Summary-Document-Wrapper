@@ -58,7 +58,8 @@ class DocumentAnalysis:
 
         for entry in transcript_data:
             current_sentence.append(entry)
-            if entry["text"].strip().endswith("."):
+            sn = entry["text"].strip()
+            if sn.endswith(".") or sn.endswith("?") or sn.endswith("!") or sn[0].isupper():
                 sentences.append(current_sentence)
                 current_sentence = []
 
