@@ -35,8 +35,8 @@ class Summarizer:
             "summarization",
             model=self.config["model"],
             tokenizer=self.tokenizer,
-            # device=0 if torch.cuda.is_available() else -1,
-            device=-1,
+            device=0 if torch.cuda.is_available() else -1,
+            # device=-1,
             max_length=self.config["max_len"],
             min_length=self.config["min_len"],
             do_sample=self.config["do_sample"]
