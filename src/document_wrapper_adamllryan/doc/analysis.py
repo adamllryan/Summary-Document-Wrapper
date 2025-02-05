@@ -42,7 +42,7 @@ class DocumentAnalysis:
                 "end": seg.end
             } for seg in s.segments]
             sentence.append(sentence_data)
-            if s.get_plain_text().endswith("."):
+            if s.get_plain_text().endswith(".") or s.get_plain_text().endswith("?") or s.get_plain_text().endswith("!"):
                 sentences.append(sentence)
                 sentence = []
         if sentence:
