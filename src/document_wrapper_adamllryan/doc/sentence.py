@@ -18,7 +18,7 @@ class Sentence:
     def __str__(self) -> str:
         speaker = self.segments[0].get_track("transcript").get_data()["speaker"]  
         text_segments = [str(seg.get_track("transcript").get_data()["text"]) for seg in self.segments]
-        return speaker + " " + " ".join(text_segments)
+        return speaker + ": " + " ".join(text_segments)
     
     def __repr__(self) -> str:
         return self.__str__()
