@@ -38,7 +38,7 @@ class Document:
         """Assign embeddings to sentences."""
         assert len(embeddings) == len(self.sentences)
         for i, emb in enumerate(embeddings):
-            self.sentences[i].embeddings = emb
+            self.sentences[i].assign_embeddings("text", emb)
 
 
 

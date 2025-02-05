@@ -46,3 +46,13 @@ class Sentence:
         return [
             seg.get_track("transcript")["text"] for seg in self.segments
         ]
+
+    def assign_embeddings(self, key: str, embeddings: List[List[float]]) -> None:
+        """Assign embeddings to the sentence."""
+        if not self.embeddings:
+            self.embeddings = {}
+        self.embeddings[key] = embeddings 
+
+
+
+        
