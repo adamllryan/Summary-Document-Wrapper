@@ -16,7 +16,7 @@ class Sentence:
         self.aggregated_score: float = 0.0
     
     def __str__(self) -> str:
-        return self.segments[0].get_track("transcript").get("speaker") + " ".join(str(seg.get_track("transcript").get("text",'')) for seg in self.segments)
+        return self.segments[0].get_track("transcript").get_data("speaker") + " ".join(str(seg.get_track("transcript").get_data("text")) for seg in self.segments)
     
     def __repr__(self) -> str:
         return self.__str__()
