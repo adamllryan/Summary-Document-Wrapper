@@ -11,7 +11,7 @@ class Segment:
         self.timestamp: tuple[float, float] = data["timestamp"]
         
         # Define different tracks with formatters
-        transcript_formatter = lambda d: f"{d.get('speaker', 'UNKNOWN')}: {d.get('text', '')}"
+        transcript_formatter = lambda d: ((d.get('speaker', 'UNKNOWN') + ': ') if d.get('text', '').endswith('.') else '') + d.get('text', '')
         video_formatter = lambda d: f"Frames: {len(d.get('frames', []))}" if "frames" in d else "No frames"
         
         # Initialize tracks (THESE ARE THE DEFAULT TRACKS, SUBECT TO CHANGE)
