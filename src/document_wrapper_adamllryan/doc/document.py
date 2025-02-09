@@ -7,6 +7,7 @@ class Document:
     """
     def __init__(self, sentences: List[List[dict]]) -> None:
         self.sentences: List[Sentence] = [Sentence(s) for s in sentences]
+        self.summary = None
     
     def __str__(self) -> str:
         return "\n".join(f"({s.start}:{s.end}) - {s}" for s in self.sentences)

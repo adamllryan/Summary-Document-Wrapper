@@ -55,14 +55,27 @@ class DocumentAnalysis:
     def list_to_document(transcript_data: List[dict]) -> Document:
         """Convert a list of transcript data into a Document object."""
         sentences, current_sentence = [], []
-
         for entry in transcript_data:
-            current_sentence.append(entry)
             sn = entry["text"].strip()
-            if sn.endswith(".") or sn.endswith("?") or sn.endswith("!") or sn[0].isupper():
+            
+            # If the sentence starts with a capital letter, it is a new sentence
+            if sn[0].isupper():
+                # Move whatever is in current_sentence to sentences
+                if current_sentence:
+                    sentences.append(current_sentence)
+                # Start a new sentence
+                current_sentence = [entry]
+            # Condition for sentence end
+            elif sn.endswith(".") or sn.endswith("?") or sn.endswith("!"):
+                # Add entry to current_sentence
+                current_sentence.append(entry)
+                # Move current_sentence to sentences 
                 sentences.append(current_sentence)
+                # Start a new sentence 
                 current_sentence = []
-
+            else:
+                # Any other part of the sentence 
+                current_sentence.append(entry)
         if current_sentence:
             sentences.append(current_sentence)
 
