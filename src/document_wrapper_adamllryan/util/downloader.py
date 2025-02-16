@@ -27,7 +27,13 @@ class VideoDownloader:
 
         try:
             subprocess.run(
-                ["yt-dlp", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]", "-o", output_path, video_url],
+                [
+                    "yt-dlp",
+                    "-f", "bv*[vcodec^=av01]+ba/bv*+ba/best",  # Prefer non-AV1, fallback to best available
+                    "--recode-video", "mp4",  # Ensure final format is MP4
+                    "-o", output_path,
+                    video_url
+                ],
                 check=True
             )
             return os.path.join(self.download_dir, video_id)
