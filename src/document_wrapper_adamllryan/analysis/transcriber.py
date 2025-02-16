@@ -62,7 +62,7 @@ class Transcriber:
                         current_speaker = speaker_label
 
             transcript.append({
-                'text': element['text'],
+                'text': element['text'].strip(),
                 'timestamp': (formatted_start_time, formatted_end_time),
                 'speaker': current_speaker,
                 'start': formatted_start_time,
