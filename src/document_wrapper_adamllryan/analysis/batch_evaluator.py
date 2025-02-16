@@ -6,6 +6,9 @@ from typing import Dict, List
 # from transcriber import Transcriber
 # from sentence_scorer import SentenceScorer
 # from document_analysis import DocumentAnalysis
+import sys 
+# not set up yet
+sys.exit(1)
 
 class BatchEvaluator:
     def __init__(self, video_ids: List[str], config: Dict[str, str]):

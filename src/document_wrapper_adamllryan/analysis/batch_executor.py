@@ -6,7 +6,7 @@ import time
 from typing import List, Dict 
 import cv2 
 import torch
-from document_wrapper_adamllryan.analysis.document_analysis import DocumentAnalysis 
+from document_wrapper_adamllryan.doc.analysis import DocumentAnalysis 
 from document_wrapper_adamllryan.analysis.filter import Filter 
 from document_wrapper_adamllryan.analysis.keyframe_extractor import KeyframeExtractor 
 from document_wrapper_adamllryan.analysis.sentence_scorer import SentenceScorer 
