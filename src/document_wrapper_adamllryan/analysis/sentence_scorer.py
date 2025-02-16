@@ -1,9 +1,8 @@
 from typing import Dict, List, Optional
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, util
 from document_wrapper_adamllryan.doc.document import Document
 from document_wrapper_adamllryan.doc.sentence import Sentence 
-from document_wrapper_adamllryan.util import util
 
 
 class SentenceScorer:
