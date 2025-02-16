@@ -1,8 +1,7 @@
 import os
 import torch
 import datetime
-import json
-from typing import List, Dict
+import json from typing import List, Dict
 from transformers import pipeline
 from pyannote.audio import Pipeline
 
@@ -50,7 +49,18 @@ class Transcriber:
         for element in result['chunks']:
             start_time, end_time = element['timestamp']
             formatted_start_time = datetime.timedelta(seconds=start_time).total_seconds()
-            formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
+            if end_time is None:
+                idx = result['chunks'].index(element)
+                while result['chunks'][idx]['timestamp'][1] is None and idx < len(result['chunks']) - 1:
+                    idx += 1 
+                if result['chunks'][idx]['timestamp'][1] is not None:
+                    end_time = result['chunks'][idx]['timestamp'][1]
+            
+            if end_time is None:
+                # set to length of audio 
+                end_time = diarization.get_timeline().end
+            else:
+                formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
 
             max_overlap, current_speaker = 0, "UNKNOWN"
             for segment in diarization.itertracks(yield_label=True):
