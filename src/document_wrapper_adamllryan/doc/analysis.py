@@ -57,6 +57,8 @@ class DocumentAnalysis:
         sentences, current_sentence = [], []
         for entry in transcript_data:
             sn = entry["text"].strip()
+            if len(sn) == 0:
+                continue
             
             # If the sentence starts with a capital letter, it is a new sentence
             if sn[0].isupper():
