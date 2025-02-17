@@ -56,12 +56,10 @@ class Transcriber:
                     idx += 1 
                 if result['chunks'][idx]['timestamp'][1] is not None:
                     end_time = result['chunks'][idx]['timestamp'][1]
+                else:
+                    continue
             
-            if end_time is None:
-                # set to length of audio 
-                end_time = diarization.get_timeline().end
-            else:
-                formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
+            formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
 
             max_overlap, current_speaker = 0, "UNKNOWN"
             for segment in diarization.itertracks(yield_label=True):
