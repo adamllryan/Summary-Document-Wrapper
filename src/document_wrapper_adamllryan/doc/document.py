@@ -5,7 +5,7 @@ class Document:
     """
     Represents a document consisting of multiple sentences.
     """
-    def __init__(self, sentences: List[List[dict]]) -> None:
+    def __init__(self, sentences: List[dict]) -> None:
         self.sentences: List[Sentence] = [Sentence(s) for s in sentences]
         self.summary = None
     

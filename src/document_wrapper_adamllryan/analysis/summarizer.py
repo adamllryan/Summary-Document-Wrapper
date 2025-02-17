@@ -1,24 +1,7 @@
-# import torch
-# import os
-# import json
-# import subprocess
-# import torch
-# import numpy as np
-# import time
-# import cv2
-# import random
-# from datetime import timedelta
 from transformers import pipeline, AutoTokenizer
 from transformers import AutoModelForSeq2SeqLM
 from sentence_transformers import SentenceTransformer, util
 import sys
-# from sklearn.cluster import KMeans
-
-# from document_wrapper_adamllryan.doc.document import Document
-# from document_wrapper_adamllryan.doc.sentence import Sentence
-# from document_wrapper_adamllryan.analysis.transcriber import Transcriber
-# from document_wrapper_adamllryan.doc.analysis import DocumentAnalysis
-# from document_wrapper_adamllryan.util.downloader import VideoDownloader
 
 from typing import List, Dict, Optional, Tuple
 class Summarizer:
@@ -26,6 +9,13 @@ class Summarizer:
     Summarizes transcripts using a transformer-based model.
     """
     def __init__(self, config: Dict[str, str]):
+
+        assert "model" in config, "Model not found in config"
+        assert "max_len" in config, "Max length not found in config"
+        assert "min_len" in config, "Min length not found in config"
+        assert "do_sample" in config, "Do sample not found in config"
+        assert "token_limit" in config, "Token limit not found in config"
+
         self.config = config
 
         self.model = AutoModelForSeq2SeqLM.from_pretrained(self.config["model"])
@@ -55,13 +45,11 @@ class Summarizer:
         chunks = [""]
 
         for sentence in text.split("\n"):
-          # print(f"Sentence to chunk: {sentence}")
           tokens = self._count_tokens(sentence)
           current_chunk_len = self._count_tokens(chunks[-1])
           # Need to add this because whisper has been making lower quality
           # content over time, less properly formatted
           if tokens > self.config["token_limit"]:
-            # print("Subsentence splitting")
             # If a sentence is larger than token limit we break down further
             remaining_size = self.config["token_limit"] - current_chunk_len - 1
             subsentences = self._split_large_sentences(sentence, self.config["token_limit"] - 1, remaining_size)
@@ -72,10 +60,6 @@ class Summarizer:
                 chunks[-1]+=subsentence + "\n"
               else:
                 chunks.append(subsentence + "\n")
-            # print(f"Got subsentences:")
-            # for subsentence in subsentences:
-            #   print(f"{subsentence}")
-            # print(f"Chunks as of subsentence: {chunks}")
           elif tokens + current_chunk_len < self.config["token_limit"]:
             # Extend the sentence if we are still under the len of token limit
             chunks[-1] += sentence + "\n"
@@ -83,13 +67,11 @@ class Summarizer:
           else:
             # Create a new chunk
             chunks.append(sentence + "\n")
-            # print(f"Creating new chunk: {chunks[-1]}")
 
         # print(f"---\nChunks: {chunks}\n---")
 
         summary = self._generate_summary(chunks)
         # print(f"Summary: {summary}")
-
 
         return summary
 

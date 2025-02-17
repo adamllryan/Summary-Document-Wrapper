@@ -5,6 +5,8 @@ import json
 from typing import List, Dict
 from transformers import pipeline
 from pyannote.audio import Pipeline
+from document_wrapper_adamllryan.doc.document import Document
+from document_wrapper_adamllryan.doc.analysis import DocumentAnalysis
 
 class Transcriber:
     """
@@ -13,30 +15,45 @@ class Transcriber:
     def __init__(self, config: Dict[str, str]):
         self.config = config
 
+        assert "asr_model" in self.config, "ASR model not found in config"
+        assert "diarization_model" in self.config, "Diarization model not found in config"
+        assert "chunk_length_s" in self.config, "Chunk length not found in config"
+        assert "batch_size" in self.config, "Batch size not found in config"
+
+        use_cuda = torch.cuda.is_available() and not self.config.get("test_transcriber", False)
+
         self.recognizer = pipeline(
             "automatic-speech-recognition",
             model=self.config["asr_model"],
             chunk_length_s=self.config["chunk_length_s"],
             batch_size=self.config["batch_size"],
-            device=0 if torch.cuda.is_available() else -1,
+            device=0 if use_cuda else -1
         )
+
         self.diarization_pipeline = Pipeline.from_pretrained(
             self.config["diarization_model"],
             use_auth_token=True
-        ).to(torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"))
+        ).to(torch.device("cuda" if use_cuda else "cpu"))
 
-    def transcribe(self, video_path: str) -> List[Dict]:
+    def transcribe(self, video_path: str) -> Document:
         """Extracts transcript from video and assigns speakers."""
+
+        assert os.path.exists(video_path), f"Video file not found: {video_path}"
+        
         audio_path = self._extract_audio(video_path)
         diarization = self.diarization_pipeline({'uri': f'file://{audio_path}', 'audio': audio_path})
+        transcription = self.recognizer(audio_path, return_timestamps=True)
 
-        print("Building Transcript")
-        result = self.recognizer(audio_path, return_timestamps=True)
+        merged = self._merge_results(transcription, diarization)
 
-        return self._merge_results(result, diarization)
+        return DocumentAnalysis.list_to_document(merged)
+
 
     def _extract_audio(self, video_path: str) -> str:
         """Extracts audio from video using ffmpeg."""
+
+        assert os.path.exists(video_path), f"Video file not found: {video_path}"
+
         audio_path = video_path.replace(".mp4", ".wav")
         if os.path.exists(audio_path):
             os.remove(audio_path)
@@ -45,21 +62,30 @@ class Transcriber:
 
     def _merge_results(self, result, diarization) -> List[Dict]:
         """Merges ASR and diarization results to form a structured transcript."""
+
+        assert "chunks" in result, "Transcription result missing 'chunks' key"
+        assert "itertracks" in diarization, "Diarization result missing 'itertracks' key"
+
         transcript = []
 
         for element in result['chunks']:
             start_time, end_time = element['timestamp']
             formatted_start_time = datetime.timedelta(seconds=start_time).total_seconds()
+
+            # Try to find the next start time and set that as missing end time
+
             if end_time is None:
                 idx = result['chunks'].index(element)
                 while result['chunks'][idx]['timestamp'][1] is None and idx < len(result['chunks']) - 1:
                     idx += 1 
                 if result['chunks'][idx]['timestamp'][1] is not None:
                     end_time = result['chunks'][idx]['timestamp'][1]
-                else:
+                else: # if missing, skip this element
                     continue
             
             formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
+
+            # Merge by finding the speaker with the most overlap
 
             max_overlap, current_speaker = 0, "UNKNOWN"
             for segment in diarization.itertracks(yield_label=True):
