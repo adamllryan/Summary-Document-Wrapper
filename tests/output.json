@@ -1,0 +1,1586 @@
+[
+    {
+        "start": 0.0,
+        "end": 5.76,
+        "timestamp": [
+            0.0,
+            5.76
+        ],
+        "text": {
+            "text": "SHA stands for the secure hash algorithm, which is interesting given that they've just kind of been broken",
+            "speaker": "UNKNOWN",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 6.66,
+        "end": 10.28,
+        "timestamp": [
+            6.66,
+            10.28
+        ],
+        "text": {
+            "text": "But I'm not going to talk specifically about the attack on SHA today",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 11.46,
+        "end": 13.46,
+        "timestamp": [
+            11.46,
+            13.46
+        ],
+        "text": {
+            "text": "That's for a different video, but",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 14.28,
+        "end": 20.4,
+        "timestamp": [
+            14.28,
+            20.4
+        ],
+        "text": {
+            "text": "What I wanted to do was talk it in a little bit more detail about hash functions and what they are and",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 20.4,
+        "end": 28.0,
+        "timestamp": [
+            20.4,
+            28.0
+        ],
+        "text": {
+            "text": "How SHA in particular works so you can get an idea of a kind of way these things are implemented and how Shara in particular works, so you can get an idea of the kind of way these things are implemented.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 33.0,
+        "end": 36.0,
+        "timestamp": [
+            33.0,
+            36.0
+        ],
+        "text": {
+            "text": "Let's have a quick look at what a hash function is, briefly, because Tom Scott's already covered it in his video, and he's gone into a lot of the reasons you might use a hash function.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 36.0,
+        "end": 41.0,
+        "timestamp": [
+            36.0,
+            41.0
+        ],
+        "text": {
+            "text": "The kind of hash functions I'm talking about are not the ones that we've been talking about for hashing passwords.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 41.0,
+        "end": 45.6,
+        "timestamp": [
+            41.0,
+            45.6
+        ],
+        "text": {
+            "text": "Those ones have to be quite slow in some sense because you need them to be secure.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 45.6,
+        "end": 56.96,
+        "timestamp": [
+            45.6,
+            56.96
+        ],
+        "text": {
+            "text": "We're going to talk mostly about the hash functions that are used routinely in cryptography for things like message authentication, digital signatures and so on. So they need to be fairly quick both to verify and compute.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 56.96,
+        "end": 72.76,
+        "timestamp": [
+            56.96,
+            72.76
+        ],
+        "text": {
+            "text": "A hash function takes some string, right, let's say A, B, C, and it turns it into some fixed length string But it's not usually three long of random so you know a bit string right but so soon the 0 1 1 0 0 1 0 1 1 dot",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 72.76,
+        "end": 76.46,
+        "timestamp": [
+            72.76,
+            76.46
+        ],
+        "text": {
+            "text": "Dot dot going forward this way for however many bits that hash function is now",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 76.46,
+        "end": 80.12,
+        "timestamp": [
+            76.46,
+            80.12
+        ],
+        "text": {
+            "text": "There's a few important properties of hash functions that we care about for cryptography",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 80.2,
+        "end": 83.38,
+        "timestamp": [
+            80.2,
+            83.38
+        ],
+        "text": {
+            "text": "But the most important one perhaps is that it's essentially pseudo random",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 83.38,
+        "end": 89.76,
+        "timestamp": [
+            83.38,
+            89.76
+        ],
+        "text": {
+            "text": "So that means that we put in ABC and we get out something that is in no way like ABC and appears completely random to us",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 89.76,
+        "end": 94.28,
+        "timestamp": [
+            89.76,
+            94.28
+        ],
+        "text": {
+            "text": "And if we change this even slightly because it's appearing random this is completely changed",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 94.7,
+        "end": 98.66,
+        "timestamp": [
+            94.7,
+            98.66
+        ],
+        "text": {
+            "text": "So let's have a quick look at char one as an example just so we can see this in action",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 98.66,
+        "end": 110.92,
+        "timestamp": [
+            98.66,
+            110.92
+        ],
+        "text": {
+            "text": "I'm on some page that has a script that calculates hashes on the fly so I can put in ABC has a script that calculates hashes on the fly. So I can put in ABC and you can see that the hash is A999, 3E and so on all the way up to D. This is the",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 110.92,
+        "end": 125.46,
+        "timestamp": [
+            110.92,
+            125.46
+        ],
+        "text": {
+            "text": "SHA1 hash. A SHA1 hash is 160 bits long. If I change this C to a D, the hash is completely changed. So there's the appearance of randomness, the idea that this hash is actually not related to this at all, even though it is.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 125.46,
+        "end": 131.24,
+        "timestamp": [
+            125.46,
+            131.24
+        ],
+        "text": {
+            "text": "And we know it is, because if I put C back again, we're back to A9993.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 131.24,
+        "end": 142.24,
+        "timestamp": [
+            131.24,
+            142.24
+        ],
+        "text": {
+            "text": "So we can use this to verify messages haven't been changed, or verify signatures on certificates, and we can do it knowing that we have the appearance of randomness, but actually it's not random at all.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 142.24,
+        "end": 146.32,
+        "timestamp": [
+            142.24,
+            146.32
+        ],
+        "text": {
+            "text": "Today we're going to talk a bit about how you actually write a hash function to do this",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 146.46,
+        "end": 152.1,
+        "timestamp": [
+            146.46,
+            152.1
+        ],
+        "text": {
+            "text": "How do we take something that essentially isn't random with a very known structure and turn it into something that looks like nonsense?",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 152.22,
+        "end": 154.22,
+        "timestamp": [
+            152.22,
+            154.22
+        ],
+        "text": {
+            "text": "Such that we can use it now",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 155.22,
+        "end": 159.08,
+        "timestamp": [
+            155.22,
+            159.08
+        ],
+        "text": {
+            "text": "There'll be people raising a few eyebrows. I'm using char one as an example to do this",
+            "speaker": "UNKNOWN",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 159.08,
+        "end": 162.58,
+        "timestamp": [
+            159.08,
+            162.58
+        ],
+        "text": {
+            "text": "But actually there's fairly reasonable reasons to do so first of all",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 162.58,
+        "end": 172.38,
+        "timestamp": [
+            162.58,
+            172.38
+        ],
+        "text": {
+            "text": "You know we might also talk about the weaknesses at some point but also char one bears a striking similarity in structure to md4 and md5 which has seen a lot of use historically and",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 173.44,
+        "end": 176.7,
+        "timestamp": [
+            173.44,
+            176.7
+        ],
+        "text": {
+            "text": "Shar two five six and sha five twelve which is sha two",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 177.58,
+        "end": 181.26,
+        "timestamp": [
+            177.58,
+            181.26
+        ],
+        "text": {
+            "text": "Which currently is in some sense for standard that everyone uses right?",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 181.26,
+        "end": 189.0,
+        "timestamp": [
+            181.26,
+            189.0
+        ],
+        "text": {
+            "text": "Sha three is quite different and that's something else for another day So shah 1 was developed by the NSA and released and published in 1995",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 189.12,
+        "end": 192.8,
+        "timestamp": [
+            189.12,
+            192.8
+        ],
+        "text": {
+            "text": "Now a lot of people don't trust things that the NSA do sort of by default",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 193.18,
+        "end": 198.52,
+        "timestamp": [
+            193.18,
+            198.52
+        ],
+        "text": {
+            "text": "Which might be fair, but in this case actually shah 1 was quite good for a long long time",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 199.14,
+        "end": 204.88,
+        "timestamp": [
+            199.14,
+            204.88
+        ],
+        "text": {
+            "text": "Where there were some concerns me some more recently much see it more serious concerns, but some concerns, more recently, much more serious concerns, but",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 210.52,
+        "end": 211.92,
+        "timestamp": [
+            210.52,
+            211.92
+        ],
+        "text": {
+            "text": "Originally the NSA weren't doing it as a backdoor and stuff. The NSA need cryptography just like everyone else and this is a good function",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 216.2,
+        "end": 216.44,
+        "timestamp": [
+            216.2,
+            216.44
+        ],
+        "text": {
+            "text": "MD5 had a lot of problems and so what they basically did was extend it and make it better.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 218.92,
+        "end": 244.44,
+        "timestamp": [
+            218.92,
+            244.44
+        ],
+        "text": {
+            "text": "Char1 takes any length of string and outputs a 160-bit value, right? So that's 160 zeros and ones. The question then becomes I've got a string that could be ABC Or it could be an incredibly long file or you know a whole movie right and I want to calculate 160-bit signature of that how do I even get started doing that well the answer is that I basically have a loop that takes 512-bit blocks of data one at a time until the files expended",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 244.44,
+        "end": 248.62,
+        "timestamp": [
+            244.44,
+            248.62
+        ],
+        "text": {
+            "text": "Let's look at an example of how shall one works on just a single message of exactly the right length",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 248.62,
+        "end": 252.8,
+        "timestamp": [
+            248.62,
+            252.8
+        ],
+        "text": {
+            "text": "And then we'll just talk briefly about what you do when inevitably isn't the right length",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 253.02,
+        "end": 260.9,
+        "timestamp": [
+            253.02,
+            260.9
+        ],
+        "text": {
+            "text": "Which is almost always right so shall one takes a message of in blocks of 512 bits in length and",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 261.6,
+        "end": 267.36,
+        "timestamp": [
+            261.6,
+            267.36
+        ],
+        "text": {
+            "text": "If it's only one block if the message is exactly 512 bits in length then we only run it once in essence",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 267.36,
+        "end": 271.92,
+        "timestamp": [
+            267.36,
+            271.92
+        ],
+        "text": {
+            "text": "And then we output the hash at the end so char one starts with an internal state",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 271.92,
+        "end": 277.98,
+        "timestamp": [
+            271.92,
+            277.98
+        ],
+        "text": {
+            "text": "Then we bring in bits of our message one at a time and we change that internal state and after we've done that at the very end",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 277.98,
+        "end": 282.0,
+        "timestamp": [
+            277.98,
+            282.0
+        ],
+        "text": {
+            "text": "When there's no more message left we just read what the internal state is and that's our hash",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 282.22,
+        "end": 319.1,
+        "timestamp": [
+            282.22,
+            319.1
+        ],
+        "text": {
+            "text": "Right, so we're going to basically be taking the internal state and updating it with the message until we run out of message and then as soon as that process stops we can read the result. That's how the sha family of hash functions works. So our internal state we call h, so I'm going to say h naught h1 h2 h3 and h4. the internal state of shah 1 is exactly the same length as the hash that it produces which is 160 bits which is 5 32-bit words four bytes each you know for 32-bit machines would be an int so this is initialized based on some constants",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 319.1,
+        "end": 320.94,
+        "timestamp": [
+            319.1,
+            320.94
+        ],
+        "text": {
+            "text": "Which is defined in the standard right?",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 320.94,
+        "end": 322.34,
+        "timestamp": [
+            320.94,
+            322.34
+        ],
+        "text": {
+            "text": "We might talk about that in a bit",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 322.34,
+        "end": 325.54,
+        "timestamp": [
+            322.34,
+            325.54
+        ],
+        "text": {
+            "text": "But it's not very important and what we're going to do is we're going to update these H's",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 325.54,
+        "end": 331.0,
+        "timestamp": [
+            325.54,
+            331.0
+        ],
+        "text": {
+            "text": "As we bring in our message and then at the end we'll see what the H's are and that's our hash function",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 331.34,
+        "end": 332.88,
+        "timestamp": [
+            331.34,
+            332.88
+        ],
+        "text": {
+            "text": "So how do we do this well?",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 332.88,
+        "end": 337.56,
+        "timestamp": [
+            332.88,
+            337.56
+        ],
+        "text": {
+            "text": "We have something called a compression function. It's going to take in this data and a bit of message",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 338.02,
+        "end": 342.88,
+        "timestamp": [
+            338.02,
+            342.88
+        ],
+        "text": {
+            "text": "Turn it into another set of H values and that's going to repeat as we have a message",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 342.88,
+        "end": 349.5,
+        "timestamp": [
+            342.88,
+            349.5
+        ],
+        "text": {
+            "text": "But that's only going to happen once this time because my message is exactly 512 which is very handy. So this is our compression function and",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 349.98,
+        "end": 363.0,
+        "timestamp": [
+            349.98,
+            363.0
+        ],
+        "text": {
+            "text": "I'm going to rename these slightly just to confuse everyone to a b c d and e. So at the beginning of our compression function we copy these this is the internal state into a b c d and e. We then perform 80",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 366.02,
+        "end": 375.64,
+        "timestamp": [
+            366.02,
+            375.64
+        ],
+        "text": {
+            "text": "C D and E we then perform 80 rounds of sha compression function, right? Which is like this so times 80 now what that's going to do is take in words from our 512-bit block of our message",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 375.64,
+        "end": 384.86,
+        "timestamp": [
+            375.64,
+            384.86
+        ],
+        "text": {
+            "text": "So if this is our message here the message is 512 bits this is going to come in at this point and be mixed in with this a b c and d so",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 385.28,
+        "end": 388.62,
+        "timestamp": [
+            385.28,
+            388.62
+        ],
+        "text": {
+            "text": "Well for now we won't talk about exactly what's going on in this compression function",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 388.62,
+        "end": 392.5,
+        "timestamp": [
+            388.62,
+            392.5
+        ],
+        "text": {
+            "text": "But the idea is that the bits of a b c d and e are being combined together",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 392.62,
+        "end": 397.42,
+        "timestamp": [
+            392.62,
+            397.42
+        ],
+        "text": {
+            "text": "They're being shuffled they're being commuted around to make it look more and more random as we go",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 397.42,
+        "end": 401.62,
+        "timestamp": [
+            397.42,
+            401.62
+        ],
+        "text": {
+            "text": "And at the same time we're bringing in bits from this message to further increase",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 402.1,
+        "end": 411.96,
+        "timestamp": [
+            402.1,
+            411.96
+        ],
+        "text": {
+            "text": "The appearance of randomness but also to make sure that this sha function is calculating a digest on this specific message rather than just a general one that's the same every time. For this message",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 412.0,
+        "end": 414.7,
+        "timestamp": [
+            412.0,
+            414.7
+        ],
+        "text": {
+            "text": "We're always going to perform the exact same algorithm",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 414.7,
+        "end": 419.22,
+        "timestamp": [
+            414.7,
+            419.22
+        ],
+        "text": {
+            "text": "So if we put in this message a second time the sha function will produce exactly the same result",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 420.06,
+        "end": 430.62,
+        "timestamp": [
+            420.06,
+            430.62
+        ],
+        "text": {
+            "text": "Now once we've done this and we've shuffled up a b c d and e we'll be left with a new a b c d and e so a b c d and e and then we finish this",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 430.98,
+        "end": 468.66,
+        "timestamp": [
+            430.98,
+            468.66
+        ],
+        "text": {
+            "text": "Block by bringing our h values down here and adding them to these values here to create a new h naught h1 h2 h3 h4 the state has now been updated by whatever we did in this compression function by just adding to it all right now all addition in char is done without any overflow modulo of 2 to 32 what that means is that if you ever go over the maximum value allowed by a four byte integer you wrap back around again right which is one of the reasons why shah can't be reversed because you might lose information that way",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 469.3,
+        "end": 473.34,
+        "timestamp": [
+            469.3,
+            473.34
+        ],
+        "text": {
+            "text": "This is not encryption. We don't need to be able to reverse it. So this state is",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 474.12,
+        "end": 477.7,
+        "timestamp": [
+            474.12,
+            477.7
+        ],
+        "text": {
+            "text": "Finished now if our message is exactly 512 bits",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 477.74,
+        "end": 485.92,
+        "timestamp": [
+            477.74,
+            485.92
+        ],
+        "text": {
+            "text": "We read these h naught h1 h2 h3 h4 values out that is our hash so for short messages. We're done. I can just you know go home",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 487.5,
+        "end": 494.98,
+        "timestamp": [
+            487.5,
+            494.98
+        ],
+        "text": {
+            "text": "In actual fact the the principle of extending this to arbitrary length messages right in increments of 512 bits is",
+            "speaker": "UNKNOWN",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 495.58,
+        "end": 498.68,
+        "timestamp": [
+            495.58,
+            498.68
+        ],
+        "text": {
+            "text": "We copy this state back up to the top and we repeat the process",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 498.68,
+        "end": 509.1,
+        "timestamp": [
+            498.68,
+            509.1
+        ],
+        "text": {
+            "text": "And then we copy back up and we repeat the process for as many blocks as we have of our message 512 bits at a time of our message we feed it in we alter the state using this approach here",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 509.1,
+        "end": 513.32,
+        "timestamp": [
+            509.1,
+            513.32
+        ],
+        "text": {
+            "text": "And then we read off a state when we're done. That's basically how it works",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 514.04,
+        "end": 519.76,
+        "timestamp": [
+            514.04,
+            519.76
+        ],
+        "text": {
+            "text": "So the the security of shah is all in this compression function and what it's doing if it's sure",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 520.5,
+        "end": 525.8,
+        "timestamp": [
+            520.5,
+            525.8
+        ],
+        "text": {
+            "text": "Yeah, if it's not a multiple of 512 bits, we're going to have to do some padding right",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 526.36,
+        "end": 528.9,
+        "timestamp": [
+            526.36,
+            528.9
+        ],
+        "text": {
+            "text": "Shar only works with 512 bit blocks",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 529.24,
+        "end": 535.86,
+        "timestamp": [
+            529.24,
+            535.86
+        ],
+        "text": {
+            "text": "So what we do is if we have our message, which is let's say 1001 101",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 535.86,
+        "end": 539.4,
+        "timestamp": [
+            535.86,
+            539.4
+        ],
+        "text": {
+            "text": "It's not a very long message if we want to pad that up to 512 bits",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 539.56,
+        "end": 543.02,
+        "timestamp": [
+            539.56,
+            543.02
+        ],
+        "text": {
+            "text": "We start with a 1 we pad with 11 right?",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 543.02,
+        "end": 546.8,
+        "timestamp": [
+            543.02,
+            546.8
+        ],
+        "text": {
+            "text": "So I'm going to sort of of demarcate the padding here so we know.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 546.8,
+        "end": 559.56,
+        "timestamp": [
+            546.8,
+            559.56
+        ],
+        "text": {
+            "text": "We go with 0, 0, 0, 0, and then we finish off the message with the length of the actual message in it, so we know where to sort of remove the padding, which in this case is 7, so in binary, 111.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 559.56,
+        "end": 561.22,
+        "timestamp": [
+            559.56,
+            561.22
+        ],
+        "text": {
+            "text": "So 111.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 561.22,
+        "end": 575.2,
+        "timestamp": [
+            561.22,
+            575.2
+        ],
+        "text": {
+            "text": "Obviously would allot more bits for your length than I have done right yet the idea now this padding scheme ensures that messages of the same length and messages end in the same way or in very similar ways don't share the same padding",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 575.66,
+        "end": 578.32,
+        "timestamp": [
+            575.66,
+            578.32
+        ],
+        "text": {
+            "text": "And don't end up being the same that's very important",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 578.68,
+        "end": 581.38,
+        "timestamp": [
+            578.68,
+            581.38
+        ],
+        "text": {
+            "text": "So this approach to sharp is repetitive",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 581.94,
+        "end": 587.6,
+        "timestamp": [
+            581.94,
+            587.6
+        ],
+        "text": {
+            "text": "Updating of the internal state with a compression function is in essence is called a Merkel dam guard construction",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 588.78,
+        "end": 591.42,
+        "timestamp": [
+            588.78,
+            591.42
+        ],
+        "text": {
+            "text": "This was sort of independently proved by a Merkel and dam guard",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 591.98,
+        "end": 597.88,
+        "timestamp": [
+            591.98,
+            597.88
+        ],
+        "text": {
+            "text": "But essentially what's good about it is if your compression function is good and has good pseudo random properties",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 597.88,
+        "end": 605.0,
+        "timestamp": [
+            597.88,
+            605.0
+        ],
+        "text": {
+            "text": "Then so does your Shar function, which is of course very useful which is of course very useful.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 612.0,
+        "end": 615.0,
+        "timestamp": [
+            612.0,
+            615.0
+        ],
+        "text": {
+            "text": "The problem is that the compression function of SHA-1 is not so good that the attacks are 2 to the 80. They can be reduced somewhat to about 2 to the 60, something like this.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    },
+    {
+        "start": 615.0,
+        "end": 620.0,
+        "timestamp": [
+            615.0,
+            620.0
+        ],
+        "text": {
+            "text": "Which becomes into the realm of possibility for people with a lot of money.",
+            "speaker": "SPEAKER_00",
+            "embeddings": {},
+            "score": null
+        },
+        "keyframe": {
+            "frames": [],
+            "score": null
+        }
+    }
+]

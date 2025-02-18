@@ -1,84 +1,94 @@
 from typing import List
 from .document import Document
+from .track import TextTrack, KeyframeTrack
 
 class DocumentAnalysis:
     """
     Contains static methods for analyzing and processing document data.
     """
-    @staticmethod
-    def assign_scores(document: Document, text_scores: List[float], keyframe_scores: List[int]) -> None:
-        """Assign scores to sentences within a Document and compute aggregated scores."""
-        assert len(text_scores) == len(document.sentences)
-        assert len(keyframe_scores) == len(document.sentences)
-
-        for i, sentence in enumerate(document.sentences):
-            sentence.text_score = text_scores[i]
-            sentence.keyframe_score = keyframe_scores[i]
-
-        # Compute normalized scores
-        text_min, text_max = min(text_scores), max(text_scores)
-        keyframe_min, keyframe_max = min(keyframe_scores), max(keyframe_scores)
-
-        for sentence in document.sentences:
-            if text_max == text_min and keyframe_max == keyframe_min:
-                sentence.aggregated_score = 0
-            elif text_max == text_min:
-                sentence.aggregated_score = sentence.keyframe_score
-            elif keyframe_max == keyframe_min:
-                sentence.aggregated_score = sentence.text_score
-            else:
-                sentence.aggregated_score = 0.5 * (sentence.text_score - text_min) / (text_max - text_min) + \
-                                            0.5 * (sentence.keyframe_score - keyframe_min) / (keyframe_max - keyframe_min)
-    
-    @staticmethod
-    def raw_to_sentences(document: Document) -> List[List[dict]]:
-        """Convert raw transcript data within a Document into segmented sentences."""
-        sentences, sentence = [], []
-        for s in document.sentences:
-            sentence_data = [{
-                "tracks": seg.get_data(),
-                "timestamp": seg.timestamp,
-                "start": seg.start,
-                "end": seg.end
-            } for seg in s.segments]
-            sentence.append(sentence_data)
-            # Trim spaces and check sentence end 
-            sn = s.get_plain_text().strip()
-            if sn.endswith(".") or sn.endswith("?") or sn.endswith("!"):
-                sentences.append(sentence)
-                sentence = []
-        if sentence:
-            sentences.append(sentence)
-        return sentences
 
     @staticmethod
-    def list_to_document(transcript_data: List[dict]) -> Document:
+    def list_to_document_from_segments(transcript_data: List[dict]) -> Document:
         """Convert a list of transcript data into a Document object."""
-        sentences, current_sentence = [], []
+
+        assert transcript_data, "Transcript data must not be empty"
+        assert all("text" in entry for entry in transcript_data), "Transcript data must contain 'text' field"
+        assert all("start" in entry for entry in transcript_data), "Transcript data must contain 'start' field"
+        assert all("end" in entry for entry in transcript_data), "Transcript data must contain 'end' field"
+        assert all(entry["start"] <= entry["end"] for entry in transcript_data), "Start time must be less than or equal to end time"
+
+
+        # Break into sentences based on capitalization and punctuation
+
+        sentences = []
+        current_sentence = []
+
         for entry in transcript_data:
-            sn = entry["text"].strip()
-            if len(sn) == 0:
+            text = entry["text"].strip()
+            if len(text) == 0:
                 continue
-            
-            # If the sentence starts with a capital letter, it is a new sentence
-            if sn[0].isupper():
-                # Move whatever is in current_sentence to sentences
+
+            # Condition: Start a new sentence if text starts with a capital letter
+            if text[0].isupper():
                 if current_sentence:
                     sentences.append(current_sentence)
-                # Start a new sentence
                 current_sentence = [entry]
-            # Condition for sentence end
-            elif sn.endswith(".") or sn.endswith("?") or sn.endswith("!"):
-                # Add entry to current_sentence
+
+            # Condition: End the sentence if punctuation is encountered
+            elif text.endswith(".") or text.endswith("?") or text.endswith("!"):
                 current_sentence.append(entry)
-                # Move current_sentence to sentences 
                 sentences.append(current_sentence)
-                # Start a new sentence 
                 current_sentence = []
+
             else:
-                # Any other part of the sentence 
+                # Continue the existing sentence
                 current_sentence.append(entry)
+
+        # Add any remaining sentence
         if current_sentence:
             sentences.append(current_sentence)
+        
+        temp = []
 
-        return Document(sentences)
+        for sentence in sentences:
+            temp.append({
+                "start": sentence[0]["start"],
+                "end": sentence[-1]["end"],
+                "text": {
+                    "text": " ".join([entry["text"].strip() for entry in sentence]),
+                    "speaker": sentence[0].get("speaker", "UNKNOWN"),
+                    },
+                "keyframe": None
+            })
+
+        return Document(temp, {
+                        "text": TextTrack,
+                        "keyframe": KeyframeTrack,
+                        })
+
+    @staticmethod
+    def list_to_document_from_processed(transcript_data: List[dict]) -> Document:
+        """Convert a list of transcript data into a Document object."""
+
+        assert transcript_data, "Transcript data must not be empty"
+        assert all("text" in entry for entry in transcript_data), "Transcript data must contain 'text' field"
+        assert all("start" in entry for entry in transcript_data), "Transcript data must contain 'start' field"
+        assert all("end" in entry for entry in transcript_data), "Transcript data must contain 'end' field"
+        assert all(entry["start"] <= entry["end"] for entry in transcript_data), "Start time must be less than or equal to end time"
+
+        # # assert that if any transcript_data["keyframe"]["score"] exists, it does for all 
+        # if any("keyframe" in entry for entry in transcript_data):
+        #     assert all("keyframe" in entry and "score" in entry["keyframe"] for entry in transcript_data), "Transcript data must contain 'keyframe' field with 'score'"
+        # # same for text score 
+        # if any("text" in entry for entry in transcript_data):
+        #     assert all("text" in entry and "score" in entry["text"] for entry in transcript_data), "Transcript data must contain 'text' field with 'score'"
+
+
+        # Break into sentences based on capitalization and punctuation
+
+        return Document(transcript_data, {
+                        "text": TextTrack,
+                        "keyframe": KeyframeTrack,
+                        })
+
+
