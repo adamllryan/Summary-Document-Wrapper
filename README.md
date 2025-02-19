@@ -8,7 +8,17 @@ This repository provides a pipeline for generating extractive summaries of video
 To use this pipeline, your videos should be organized in the following directory structure:
 
 ```
- video_id_1/ source_video.mp4 ...other related files... video_id_2/ source_video.mp4 ...other related files... ...
+ video_id_1/
+  source_video.mp4
+  ...
+  other related files
+  ...
+ video_id_2/
+  source_video.mp4
+  ...
+  other related files
+  ...
+...
 ```
 
 Each video should be placed in a folder named after its ID. Within each folder, the video file should be named `source_video.mp4`. Other related files can also be stored in this folder.
@@ -38,7 +48,7 @@ The `Document` class handles the ordering of segments into sentences using minim
 {
     "metadata": {
         "error": "If any",
-        "filtered_timestamps": [(0.0, 5.76), ...]
+        "filtered_timestamps": [(0.0, 5.76)]
     }
     "sentences": { 
         "start": 0.0, 
