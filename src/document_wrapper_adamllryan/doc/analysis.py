@@ -61,6 +61,21 @@ class DocumentAnalysis:
                 "keyframe": None
             })
 
+        # Insert blank sentences where there is any gap
+        i = 0
+        while i < len(temp) - 1:
+            if temp[i]["end"] < temp[i + 1]["start"]:
+                temp.insert(i + 1, {
+                    "start": temp[i]["end"],
+                    "end": temp[i + 1]["start"],
+                    "text": {
+                        "text": "",
+                        "speaker": "UNKNOWN",
+                        },
+                    "keyframe": None
+                })
+            i += 1
+
         return Document(temp, {
                         "text": TextTrack,
                         "keyframe": KeyframeTrack,
