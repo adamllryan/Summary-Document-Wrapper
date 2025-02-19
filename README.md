@@ -48,7 +48,7 @@ The `Document` class handles the ordering of segments into sentences using minim
 {
     "metadata": {
         "error": "If any",
-        "filtered_timestamps": [(0.0, 5.76), ...]
+        "filtered_timestamps": [(0.0, 5.76)]
     }
     "sentences": { 
         "start": 0.0, 
