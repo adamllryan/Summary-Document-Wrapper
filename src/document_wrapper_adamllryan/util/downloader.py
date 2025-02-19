@@ -30,10 +30,7 @@ class VideoDownloader:
                 result = subprocess.run(
                     [
                         "yt-dlp",
-                        "-f", "bv*+ba/best",  # Select best available format with both video and audio
-                        "--merge-output-format", "mp4",  # Ensure final format is MP4
-                        "--quiet", "--no-warnings",  # Reduce verbosity
-                        "--no-playlist",  # Only download a single video
+                        "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",  # Only download a single video
                         "-o", output_path,
                         video_url
                     ],
