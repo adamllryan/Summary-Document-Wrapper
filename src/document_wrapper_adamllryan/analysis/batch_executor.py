@@ -213,7 +213,7 @@ class BatchExecutor:
         # Extract keyframe counts
         print(f"Computing keyframe counts for video: {video_id}")
         video_path = os.path.join(self.config["video_dir"], video_id, self.config["video_filename"])
-        self.keyframe_extractor.extract(video_path, self.documents[video_id].sentences)
+        self.keyframe_extractor.extract(video_path, self.documents[video_id])
 
         # Write aggregated output.json
         with open(output_path, "w", encoding="utf-8") as f:
