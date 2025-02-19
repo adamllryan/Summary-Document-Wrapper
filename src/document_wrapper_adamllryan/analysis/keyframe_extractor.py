@@ -24,7 +24,7 @@ class KeyframeExtractor:
             return
         
         keyframe_counts = self._assign_keyframes_to_sentences(keyframes, document)
-        document.call_track_method("set_score", "keyframes", keyframe_counts)
+        document.call_track_method("set_score", "keyframe", keyframe_counts)
     
     def _extract_keyframes(self, video_path: str):
         """Extracts keyframes from the video using frame skipping and clustering."""

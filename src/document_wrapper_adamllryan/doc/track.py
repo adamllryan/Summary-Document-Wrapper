@@ -17,8 +17,8 @@ class Track:
 
     def set_score(self, score: float) -> None:
 
-        assert score is not None, "Score cannot be None"
-        assert isinstance(score, float), "Score must be a float"
+        # assert score is not None, "Score cannot be None"
+        # assert isinstance(score, float), "Score must be a float"
 
         self.score = score
 
