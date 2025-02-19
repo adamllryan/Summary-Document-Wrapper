@@ -72,6 +72,12 @@ class Document:
             if seg:
                 return seg
         return None
+
+    def set_scores(self, scores: List[float]) -> None:
+        """Set the scores for all sentences."""
+        assert len(scores) == len(self.sentences), "Scores length must match the number of sentences"
+        for sentence, score in zip(self.sentences, scores):
+            sentence.set_score(score)
     
     def export(self) -> List[dict]:
         """Export the document to a list of dictionaries."""

@@ -15,6 +15,8 @@ class Sentence:
         self.end: float = data.get("end", 0)
         self.timestamp: tuple[float, float] = data.get("timestamp", (self.start, self.end))
 
+        self.score: float = data.get("score", 0.0)
+
         self.primary_track = data.get("primary_track", "text")
 
         self.tracks: Dict[str, Track] = {}
@@ -85,8 +87,17 @@ class Sentence:
             "start": self.start,
             "end": self.end,
             "timestamp": self.timestamp,
+            "score": self.score,
             **{name: track.get_data() for name, track in self.tracks.items()}
         }
+
+    def set_score(self, score: float) -> None:
+        """Set the aggregate score for the segment."""
+        self.score = score
+
+    def get_score(self) -> float:
+        """Retrieve the aggregate score for the segment."""
+        return self.score
 
     def export(self) -> Dict[str, Any]:
         """Export the segment to a dictionary."""
@@ -94,5 +105,6 @@ class Sentence:
             "start": self.start,
             "end": self.end,
             "timestamp": self.timestamp,
+            "score": self.score,
             **{name: track.get_data() for name, track in self.tracks.items()}
         }

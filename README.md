@@ -50,10 +50,11 @@ The `Document` class handles the ordering of segments into sentences using minim
         "error": "If any",
         "filtered_timestamps": [(0.0, 5.76)]
     }
-    "sentences": { 
+    "sentences": [{ 
         "start": 0.0, 
         "end": 5.76, 
         "timestamp": [ 0.0, 5.76 ], 
+        "score": 0.0,
         "text": { 
             "text": "SHA stands for the secure hash algorithm, which is interesting given that they've just kind of been broken", 
             "speaker": "UNKNOWN", 
@@ -64,7 +65,7 @@ The `Document` class handles the ordering of segments into sentences using minim
             "frames": [], 
             "score": null 
         } 
-    }
+    }]
 }
 ```
 

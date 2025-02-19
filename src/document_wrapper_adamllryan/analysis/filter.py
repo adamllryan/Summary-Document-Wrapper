@@ -64,3 +64,7 @@ class Filter:
 
         # Store filtered sentences in Document metadata
         document.add_metadata("filtered_sentences", filtered_sentences)
+
+        # update document sentence scores 
+
+        document.set_scores(scores.values())
