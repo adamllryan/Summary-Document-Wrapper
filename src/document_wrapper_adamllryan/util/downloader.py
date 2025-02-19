@@ -16,29 +16,38 @@ class VideoDownloader:
         os.makedirs(download_dir, exist_ok=True)
 
     def download_youtube_video(self, video_id: str) -> Optional[str]:
-        """
-        Downloads a YouTube video and saves it under the given directory.
-        :param video_id: YouTube video ID
-        :return: Path to downloaded video or None if failed
-        """
-        video_url = f"https://www.youtube.com/watch?v={video_id}"
-        output_path = os.path.join(self.download_dir, f"{video_id}/source_video.%(ext)s")
-        os.makedirs(os.path.join(self.download_dir, video_id), exist_ok=True)
+            """
+            Downloads a YouTube video and saves it under the given directory.
+            :param video_id: YouTube video ID
+            :return: Path to downloaded video or None if failed
+            """
+            video_url = f"https://www.youtube.com/watch?v={video_id}"
+            output_dir = os.path.join(self.download_dir, video_id)
+            output_path = os.path.join(output_dir, "source_video.mp4")
+            os.makedirs(output_dir, exist_ok=True)
 
-        try:
-            subprocess.run(
-                [
-                    "yt-dlp",
-                    "-f", "bv*[vcodec^=av01]+ba/bv*+ba/best",  # Prefer non-AV1, fallback to best available
-                    "--recode-video", "mp4",  # Ensure final format is MP4
-                    "-o", output_path,
-                    video_url
-                ],
-                check=True
-            )
-            return os.path.join(self.download_dir, video_id)
-        except subprocess.CalledProcessError:
-            print(f"Error downloading video: {video_id}")
+            try:
+                result = subprocess.run(
+                    [
+                        "yt-dlp",
+                        "-f", "bv*+ba/best",  # Select best available format with both video and audio
+                        "--merge-output-format", "mp4",  # Ensure final format is MP4
+                        "--quiet", "--no-warnings",  # Reduce verbosity
+                        "--no-playlist",  # Only download a single video
+                        "-o", output_path,
+                        video_url
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+                if result.returncode == 0 and os.path.exists(output_path):
+                    return output_path
+            except subprocess.CalledProcessError as e:
+                print(f"Error downloading video {video_id}: {e.stderr.decode().strip()}")
+            except Exception as e:
+                print(f"Unexpected error downloading video {video_id}: {str(e)}")
+            
             return None
 
     def is_video_processed(self, video_id: str) -> bool:

@@ -7,7 +7,7 @@ class Document:
     """
     def __init__(self, sentences: List[List[dict]], tracks: Optional[Dict[str, Callable]] = None, metadata: Optional[Dict[str, Any]] = None) -> None:
         self.sentences: List[Sentence] = [Sentence(s, tracks) for s in sentences]
-        self.metadata: Dict[str, Any] = metadata or {}
+        self.metadata: Dict[str, Any] = metadata if metadata else {}
         
          
     def __str__(self) -> str:
@@ -58,6 +58,8 @@ class Document:
             # Pass data[i] if available, otherwise pass no extra arguments
             result = sentence.call_track_method(method_name, track_type, *(data[i],) if data else (), **kwargs)
             results.append(result)
+
+        return results
     
     def find_sentence(self, ts: float) -> Optional[Sentence]:
         """Find the sentence containing a given timestamp."""
