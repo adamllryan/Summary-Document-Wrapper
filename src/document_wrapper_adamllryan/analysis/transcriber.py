@@ -38,7 +38,7 @@ class Transcriber:
 
     def transcribe(self, video_path: str) -> Document:
         """Extracts transcript from video and assigns speakers."""
-
+        
         assert os.path.exists(video_path), f"Video file not found: {video_path}"
         
         audio_path = self._extract_audio(video_path)
@@ -47,8 +47,22 @@ class Transcriber:
 
         merged = self._merge_results(transcription, diarization)
 
-        return DocumentAnalysis.list_to_document_from_segments(merged)
+        try:
+            assert len(merged) > 0, "No transcriptions found"
 
+            for element in merged:
+                assert "text" in element, "Missing text in transcription"
+                assert "timestamp" in element, "Missing timestamp in transcription"
+                assert "speaker" in element, "Missing speaker in transcription"
+                assert "start" in element, "Missing start in transcription"
+                assert "end" in element, "Missing end in transcription"
+                assert element["start"] <= element["end"], "Start time is greater than end time"
+            document = DocumentAnalysis.list_to_document_from_segments(merged)
+        except AssertionError as e:
+            document = Document()
+            document.add_metadata("error", str(e))
+
+        return document
 
     def _extract_audio(self, video_path: str) -> str:
         """Extracts audio from video using ffmpeg."""
@@ -75,16 +89,19 @@ class Transcriber:
 
             # Try to find the next start time and set that as missing end time
 
-            if end_time is None:
-                idx = result['chunks'].index(element)
+            formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
+            if formatted_end_time is not None and formatted_end_time < formatted_start_time:
+                formatted_end_time = None
+
+            if formatted_end_time is None:
+                idx = result['chunks'].index(element) + 1
                 while result['chunks'][idx]['timestamp'][1] is None and idx < len(result['chunks']) - 1:
                     idx += 1 
                 if result['chunks'][idx]['timestamp'][1] is not None:
-                    end_time = result['chunks'][idx]['timestamp'][1]
+                    formatted_end_time = result['chunks'][idx]['timestamp'][1]
                 else: # if missing, skip this element
                     continue
             
-            formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
 
             # Merge by finding the speaker with the most overlap
 
@@ -110,5 +127,12 @@ class Transcriber:
         if transcript[-1]['end'] is None:
             transcript[-1]['end'] = np.inf
             transcript[-1]['timestamp'] = (transcript[-1]['timestamp'][0], np.inf)
+
+        # # Double check out of order ends 
+        # for i in range(len(transcript) - 1):
+        #     if transcript[i]['end'] < transcript[i]['start']:
+        #         transcript[i]['end'] = transcript[i + 1]['start']
+        #         transcript[i]['timestamp'] = (transcript[i]['timestamp'][0], transcript[i + 1]['timestamp'][0])
+                
 
         return transcript

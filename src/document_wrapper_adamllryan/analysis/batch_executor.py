@@ -50,6 +50,11 @@ class BatchExecutor:
                     with open(doc_path, "r", encoding="utf-8") as f:
                         transcript_data = json.load(f)
                     self.documents[video_id] = DocumentAnalysis.list_to_document_from_processed(transcript_data["sentences"], transcript_data["metadata"])
+                # Check if error metadata in any document 
+                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                    print(f"Error in document {video_id}: {self.documents[video_id].get_metadata('error')}")
+                    batch.remove(video_id)
+                    continue
 
             # Step 1: Transcription -> Creates Document objects
             for video_id in batch:
