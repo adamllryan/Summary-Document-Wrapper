@@ -72,6 +72,7 @@ class BatchExecutor:
             if self.transcriber:
                 del self.transcriber
                 torch.cuda.empty_cache()
+                self.transcriber = None
 
             # Step 2: Summarization -> Updates Document objects
             for video_id in batch:
@@ -79,6 +80,7 @@ class BatchExecutor:
             if self.summarizer:
                 del self.summarizer
                 torch.cuda.empty_cache()
+                self.summarizer = None
 
             # Step 3: Sentence Scoring -> Updates Document objects
             for video_id in batch:
@@ -86,24 +88,31 @@ class BatchExecutor:
             if self.scorer:
                 del self.scorer
                 torch.cuda.empty_cache()
+                self.scorer = None
 
             # Step 4: Keyframe Extraction -> Updates Document objects
             for video_id in batch:
                 self.get_or_generate_keyframes(video_id)
             if self.keyframe_extractor:
                 del self.keyframe_extractor
+                torch.cuda.empty_cache()
+                self.keyframe_extractor = None
 
             # Step 5: Filtering -> Updates Document objects
             for video_id in batch:
                 self.filter_sentences(video_id)
             if self.filterer:
                 del self.filterer
+                torch.cuda.empty_cache()
+                self.filterer = None
 
             # Step 6: Video Splicing
             for video_id in batch:
                 self.create_spliced_video(video_id)
             if self.splicer:
                 del self.splicer
+                torch.cuda.empty_cache()
+                self.splicer = None
 
             elapsed_time = time.time() - start_time
             print(f"Completed batch {batch_start + 1} to {batch_start + len(batch)} in {elapsed_time:.2f} seconds\n")
