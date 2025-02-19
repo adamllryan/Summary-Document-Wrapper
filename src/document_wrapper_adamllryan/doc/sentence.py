@@ -56,7 +56,7 @@ class Sentence:
     
     def __str__(self) -> str:
         if self.primary_track in self.tracks:
-            return __str__(self.tracks[self.primary_track])
+            return str(self.tracks[self.primary_track])
         return f"Segment({self.start} - {self.end})"
     
     def __repr__(self) -> str:
