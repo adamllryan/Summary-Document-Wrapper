@@ -7,6 +7,7 @@ from transformers import pipeline
 from pyannote.audio import Pipeline
 from document_wrapper_adamllryan.doc.document import Document
 from document_wrapper_adamllryan.doc.analysis import DocumentAnalysis
+import numpy as np
 
 class Transcriber:
     """
@@ -104,5 +105,10 @@ class Transcriber:
                 'end': formatted_end_time,
                 'formatted_text': f"{current_speaker}: {element['text']}"
             })
+
+        # Check for None end type in last element
+        if transcript[-1]['end'] is None:
+            transcript[-1]['end'] = np.inf
+            transcript[-1]['timestamp'] = (transcript[-1]['timestamp'][0], np.inf)
 
         return transcript

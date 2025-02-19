@@ -4,6 +4,7 @@ import random
 import numpy as np 
 from sklearn.cluster import KMeans 
 from datetime import timedelta
+from document_wrapper_adamllryan.doc.document import Document
 
 class KeyframeExtractor:
     """

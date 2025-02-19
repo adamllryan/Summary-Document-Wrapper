@@ -1,7 +1,7 @@
 
 from typing import List
 import numpy as np 
-from document_wrapper_adamllryan.doc.sentence import Sentence 
+from document_wrapper_adamllryan.doc.document import Document
 
 
 class Filter:
