@@ -15,10 +15,10 @@ class SentenceScorer:
     
     def score(self, document: Document):
         """Computes similarity scores and assigns embeddings for each sentence in the document."""
-        summary = document.metadata.get("summary", "")
-        print(f"Summary: {summary}")
-        summary_embedding = self.model.encode([summary])  # Encode summary once
         print("Computing sentence scores")
+        
+        summary = document.metadata.get("summary", "")
+        summary_embedding = self.model.encode([summary])  # Encode summary once
         
         scores = []
         embeddings = []
@@ -28,12 +28,12 @@ class SentenceScorer:
             for sentence in document.sentences
         ]
 
-        print("Sentences", plaintext_sentences)
+        # print("Sentences", plaintext_sentences)
 
         embeddings = self.model.encode(plaintext_sentences).tolist()
         scores = util.cos_sim(summary_embedding, embeddings).tolist()[0]
-        print(f"Scores: {scores}")
-        print(f"Embeddings: {embeddings}")
+        # print(f"Scores: {scores}")
+        # print(f"Embeddings: {embeddings}")
         
         
         
