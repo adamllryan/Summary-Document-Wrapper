@@ -25,7 +25,7 @@ class Filter:
 
         # Extract scores from text track
         scores = {
-            sentence: sentence.call_track_method("get_score", "text")
+            tuple(sentence.timestamp): sentence.call_track_method("get_score", "text")["text"]
             for sentence in document.sentences
             if sentence.call_track_method("get_score", "text") is not None
         }
@@ -38,10 +38,10 @@ class Filter:
             print(f"Computed threshold: {threshold}")
 
         # Select sentences that meet the threshold
-        filtered_sentences = [s for s, score in scores.items() if score >= threshold]
+        filtered_sentences = [
+            timestamp for timestamp, score in scores.items() if score >= threshold
+        ]
         print(f"Filtered {len(filtered_sentences)} sentences out of {len(document.sentences)}")
 
         # Store filtered sentences in Document metadata
-        document.add_metadata("filtered_sentences", [(s.start, s.end) for s in filtered_sentences])
-
-        return filtered_sentences
+        document.add_metadata("filtered_sentences", filtered_sentences)

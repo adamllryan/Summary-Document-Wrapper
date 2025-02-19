@@ -6,6 +6,8 @@ import time
 from typing import List, Dict 
 import cv2 
 import torch
+# import warnings
+import logging
 from document_wrapper_adamllryan.doc.analysis import DocumentAnalysis 
 from document_wrapper_adamllryan.analysis.filter import Filter 
 from document_wrapper_adamllryan.analysis.keyframe_extractor import KeyframeExtractor 
@@ -29,6 +31,14 @@ class BatchExecutor:
         self.filterer = None
         self.splicer = None
 
+        if config["suppress_torch"]:
+            logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
+
+            logging.getLogger("pyannote").setLevel(logging.ERROR)
+
+            # warnings.simplefilter("ignore", category=FutureWarning)
+            # warnings.simplefilter("ignore", category=UserWarning)
+
     def run(self):
         total_videos = len(self.video_ids)
         print(f"Total videos: {total_videos}")
@@ -49,12 +59,12 @@ class BatchExecutor:
                 if os.path.exists(doc_path):
                     with open(doc_path, "r", encoding="utf-8") as f:
                         transcript_data = json.load(f)
+                    # check metadata for error before loading
+                    if transcript_data["metadata"].get("error"):
+                        print(f"Error in document {video_id}: {transcript_data['metadata']['error']}")
+                        batch.remove(video_id)
+                        continue
                     self.documents[video_id] = DocumentAnalysis.list_to_document_from_processed(transcript_data["sentences"], transcript_data["metadata"])
-                # Check if error metadata in any document 
-                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
-                    print(f"Error in document {video_id}: {self.documents[video_id].get_metadata('error')}")
-                    batch.remove(video_id)
-                    continue
 
             # Step 1: Transcription -> Creates Document objects
             for video_id in batch:
@@ -238,10 +248,10 @@ class BatchExecutor:
 
         # Filter sentences based on scores
         print(f"Filtering sentences for video: {video_id}")
-        filtered_sentences = self.filterer.apply(self.documents[video_id])# .sentences, sentence_scores)
+        self.filterer.apply(self.documents[video_id])# .sentences, sentence_scores)
 
         # Store filtered sentences in metadata
-        self.documents[video_id].add_metadata("filtered_sentences", [(s.start, s.end) for s in filtered_sentences])
+        # self.documents[video_id].add_metadata("filtered_sentences", [(s.start, s.end) for s in filtered_sentences])
 
         # Write aggregated output.json
         with open(output_path, "w", encoding="utf-8") as f:

@@ -59,7 +59,7 @@ class Transcriber:
                 assert element["start"] <= element["end"], "Start time is greater than end time"
             document = DocumentAnalysis.list_to_document_from_segments(merged)
         except AssertionError as e:
-            document = Document()
+            document = Document([])
             document.add_metadata("error", str(e))
 
         return document
