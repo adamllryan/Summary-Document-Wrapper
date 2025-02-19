@@ -5,8 +5,9 @@ class Document:
     """
     Represents a document consisting of multiple sentences.
     """
-    def __init__(self, sentences: List[List[dict]], tracks: Optional[Dict[str, Callable]] = None):
+    def __init__(self, sentences: List[List[dict]], tracks: Optional[Dict[str, Callable]] = None, metadata: Optional[Dict[str, Any]] = None) -> None:
         self.sentences: List[Sentence] = [Sentence(s, tracks) for s in sentences]
+        self.metadata: Dict[str, Any] = metadata or {}
         
          
     def __str__(self) -> str:
@@ -14,6 +15,20 @@ class Document:
     
     def __repr__(self) -> str:
         return self.__str__()
+
+    def add_metadata(self, key: str, value: Any) -> None:
+        """Add metadata to the document."""
+        assert key not in self.metadata, f"Metadata key {key} already exists"
+        self.metadata[key] = value
+
+    def get_metadata(self, key: str) -> Any:
+        """Retrieve metadata from the document."""
+        return self.metadata.get(key)
+
+    def edit_metadata(self, key: str, value: Any) -> None:
+        """Edit existing metadata in the document."""
+        assert key in self.metadata, f"Metadata key {key} does not exist"
+        self.metadata[key] = value
     
     def get_plain_text(self) -> str:
         """Retrieve the raw text from the document."""
@@ -58,4 +73,7 @@ class Document:
     
     def export(self) -> List[dict]:
         """Export the document to a list of dictionaries."""
-        return [s.export() for s in self.sentences]
+        return {
+            "metadata": self.metadata,
+            "sentences": [s.export() for s in self.sentences]
+        }
