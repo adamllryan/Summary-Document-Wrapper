@@ -58,6 +58,11 @@ The `Document` class handles the ordering of segments into sentences using minim
 }
 ```
 
+To read this structure back into a Document, use the `DocumentAnalysis` method: 
+```python
+    def list_to_document_from_processed(transcript_data: List[dict], metadata: Dict[str, Any]=None) -> Document:
+```
+
 ## Tracks
 
 `Tracks` are a fundamental concept in this pipeline and provide a way to represent different aspects of a video. They are implementable and extensible classes. By default, two `Tracks` are provided: `Text` and `Keyframe`. You can create custom `Tracks` to represent other features or modalities.
