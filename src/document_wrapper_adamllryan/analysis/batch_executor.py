@@ -15,14 +15,19 @@ from document_wrapper_adamllryan.analysis.summarizer import Summarizer
 from document_wrapper_adamllryan.analysis.transcriber import Transcriber 
 from document_wrapper_adamllryan.doc.document import Document 
 
-
-
 class BatchExecutor:
     def __init__(self, video_ids: List[str], config: Dict[str, str]):
         self.config = config
         self.video_ids = video_ids
         self.batch_size = config.get("batch_size", 1)
+        self.documents: Dict[str, Document] = {}
         os.makedirs(self.config["output_dir"], exist_ok=True)
+        self.transcriber = None
+        self.summarizer = None
+        self.scorer = None
+        self.keyframe_extractor = None
+        self.filterer = None
+        self.splicer = None
 
     def run(self):
         total_videos = len(self.video_ids)
@@ -37,42 +42,53 @@ class BatchExecutor:
             print(f"Processing batch {batch_start + 1} to {batch_start + len(batch)} of {total_videos}")
             start_time = time.time()
 
-            # Transcription. Should return dict of documents corresponding to video_id
-            transcriber = Transcriber(self.config["transcriber"])
-            documents = {video_id: self.get_or_generate_transcript(video_id, transcriber) for video_id in batch}
-            del transcriber
-            torch.cuda.empty_cache()
+            # Check if we have partially completed batches
 
-            # Summarization. Should return dict of summaries corresponding to video_id
-            summarizer = Summarizer(self.config["summarizer"])
-            summaries = {video_id: self.get_or_generate_summary(video_id, documents[video_id], summarizer) for video_id in batch}
-            del summarizer
-            torch.cuda.empty_cache()
-
-            # Sentence Scoring. Should return dict of scores corresponding to video_id
-            scorer = SentenceScorer(self.config["sentence_scorer"])
-            sentence_scores = {video_id: self.get_or_generate_sentence_scores(video_id, documents[video_id], summaries[video_id], scorer) for video_id in batch}
-            del scorer
-            torch.cuda.empty_cache()
-
-            # Keyframe Extraction. Should return a dict
-            keyframe_extractor = KeyframeExtractor(self.config["keyframe_extractor"])
-            keyframes = {video_id: self.get_or_generate_keyframes(video_id, documents[video_id], keyframe_extractor) for video_id in batch}
-            del keyframe_extractor
-            torch.cuda.empty_cache()
-
-            # Filtering
-            filterer = Filter(self.config["filterer"])
-            filtered_sentences = {video_id: self.filter_sentences(documents[video_id], sentence_scores[video_id], filterer) for video_id in batch}
-            del filterer
-            torch.cuda.empty_cache()
-
-            # Video Splicing
-            splicer = Splicer(self.config["splicer"])
             for video_id in batch:
-                self.create_spliced_video(video_id, filtered_sentences[video_id], splicer)
-            del splicer
-            torch.cuda.empty_cache()
+                doc_path = os.path.join(self.config["output_dir"], video_id, self.config["output_filename"])
+                if os.path.exists(doc_path):
+                    with open(doc_path, "r", encoding="utf-8") as f:
+                        transcript_data = json.load(f)
+                    self.documents[video_id] = DocumentAnalysis.list_to_document_from_processed(transcript_data["sentences"], transcript_data["metadata"])
+
+            # Step 1: Transcription -> Creates Document objects
+            for video_id in batch:
+                self.get_or_generate_transcript(video_id)
+            if self.transcriber:
+                del self.transcriber
+                torch.cuda.empty_cache()
+
+            # Step 2: Summarization -> Updates Document objects
+            for video_id in batch:
+                self.get_or_generate_summary(video_id)
+            if self.summarizer:
+                del self.summarizer
+                torch.cuda.empty_cache()
+
+            # Step 3: Sentence Scoring -> Updates Document objects
+            for video_id in batch:
+                self.get_or_generate_sentence_scores(video_id)
+            if self.scorer:
+                del self.scorer
+                torch.cuda.empty_cache()
+
+            # Step 4: Keyframe Extraction -> Updates Document objects
+            for video_id in batch:
+                self.get_or_generate_keyframes(video_id)
+            if self.keyframe_extractor:
+                del self.keyframe_extractor
+
+            # Step 5: Filtering -> Updates Document objects
+            for video_id in batch:
+                self.filter_sentences(video_id)
+            if self.filterer:
+                del self.filterer
+
+            # Step 6: Video Splicing
+            for video_id in batch:
+                self.create_spliced_video(video_id)
+            if self.splicer:
+                del self.splicer
 
             elapsed_time = time.time() - start_time
             print(f"Completed batch {batch_start + 1} to {batch_start + len(batch)} in {elapsed_time:.2f} seconds\n")
@@ -88,80 +104,171 @@ class BatchExecutor:
             print(f"Original video aggregate length: {original_length}")
             print(f"Final video aggregate length: {final_length}")
 
-    def get_or_generate_transcript(self, video_id: str, transcriber: Transcriber) -> Document:
-        transcript_path = os.path.join(self.config["output_dir"], video_id, self.config["transcript_filename"])
+
+
+
+    def get_or_generate_transcript(self, video_id: str):
+        """
+        Generates or retrieves a Document containing the transcript.
+        """
+
+        output_path = os.path.join(self.config["output_dir"], video_id, "output.json")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # Check if transcript already exists
+        if self.documents.get(video_id):
+            if all(s.get_track("text") and s.get_track("text").get_data().get("text", "").strip() for s in self.documents[video_id].sentences):
+                print(f"Transcript already exists for video: {video_id}, skipping.")
+                return
+
+        # Lazy load transcriber
+        if self.transcriber is None:
+            self.transcriber = Transcriber(self.config["transcriber"])
+
+        # Generate transcript
         video_path = os.path.join(self.config["video_dir"], video_id, self.config["video_filename"])
-        os.makedirs(os.path.dirname(transcript_path), exist_ok=True)
+        print(f"Generating new transcript for video: {video_id}")
 
-        if os.path.exists(transcript_path):
-            with open(transcript_path, "r", encoding="utf-8") as f:
-                print("Found transcript")
-                return DocumentAnalysis.list_to_document(json.load(f))
-        print("Generating transcript")
-        transcript = transcriber.transcribe(video_path)
-        with open(transcript_path, "w", encoding="utf-8") as f:
-            json.dump(transcript, f, indent=4)
-        return DocumentAnalysis.list_to_document(transcript)
+        self.documents[video_id] = self.transcriber.transcribe(video_path)
 
-    def get_or_generate_summary(self, video_id: str, document: Document, summarizer: Summarizer) -> str:
-        summary_path = os.path.join(self.config["output_dir"], video_id, self.config["summary_filename"])
+        # Write aggregated output.json
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(self.documents[video_id].export(), f, indent=4)
 
-        if os.path.exists(summary_path):
-            with open(summary_path, "r", encoding="utf-8") as f:
-                print("Found summary")
-                return f.read()
-        print("Generating summary")
-        summary = summarizer.summarize("\n".join([str(s) for s in document.sentences]))
-        with open(summary_path, "w", encoding="utf-8") as f:
-            f.write(summary)
-        return summary
+    def get_or_generate_summary(self, video_id: str):
+        """
+        Generates or retrieves a summary.
+        """
 
-    def get_or_generate_sentence_scores(self, video_id: str, document: Document, summary: str, scorer: SentenceScorer) -> Dict[str, float]:
-        """Computes or loads sentence similarity scores."""
-        sentence_scores_path = os.path.join(self.config["output_dir"], video_id, "sentence_scores.json")
+        output_path = os.path.join(self.config["output_dir"], video_id, "output.json")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-        if os.path.exists(sentence_scores_path):
-            with open(sentence_scores_path, "r", encoding="utf-8") as f:
-                print("Found sentence scores")
-                return json.load(f)
-        print("Computing sentence scores")
-        scorer.assign_sentence_embeddings(document)
-        print("Computing overall scores")
-        sentence_scores = scorer.score(document.sentences, summary)
-        with open(sentence_scores_path, "w", encoding="utf-8") as f:
-            json.dump(sentence_scores, f, indent=4)
-        return sentence_scores
-
-    def get_or_generate_keyframes(self, video_id: str, document: Document, keyframe_extractor: KeyframeExtractor) -> List[int]:
-      """Computes or loads keyframe counts per sentence."""
-      keyframe_path = os.path.join(self.config["output_dir"], video_id, "keyframes.json")
-
-      if os.path.exists(keyframe_path):
-          with open(keyframe_path, "r", encoding="utf-8") as f:
-              print("Found keyframe counts")
-              return json.load(f)
-      print("Computing keyframe counts")
-      keyframe_counts = keyframe_extractor.extract(os.path.join(self.config["video_dir"], video_id, self.config["video_filename"]), document.sentences)
-
-      with open(keyframe_path, "w", encoding="utf-8") as f:
-          json.dump(keyframe_counts, f, indent=4)
-      return keyframe_counts
-
-    def filter_sentences(self, document: Document, sentence_scores: Dict[str, float], filterer: Filter) -> List:
-        """Filters sentences based on the computed scores."""
-        print("Filtering sentences")
-
-        filtered_sentences = filterer.apply(document.sentences, sentence_scores)
-
-        return filtered_sentences
-
-    def create_spliced_video(self, video_id: str, filtered_sentences: List, splicer: Splicer):
-        print("Creating spliced video")
-        video_path = os.path.join(self.config["video_dir"], video_id, self.config["video_filename"])
-        spliced_video_path = os.path.join(self.config["output_dir"], video_id, self.config["spliced_video_filename"])
-        if os.path.exists(spliced_video_path):
-            print("Found spliced video")
+        # Check if summary already exists
+        if self.documents[video_id] and "summary" in self.documents[video_id].metadata:
+            print(f"Summary already exists for video: {video_id}, skipping.")
             return
 
+        # Lazy load summarizer
+        if self.summarizer is None:
+            self.summarizer = Summarizer(self.config["summarizer"])
+
+        # Generate summary
+        print(f"Generating new summary for video: {video_id}")
+        document_text = "\n".join(str(s) for s in self.documents[video_id].sentences)
+        summary = self.summarizer.summarize(document_text)
+
+        # Store summary in Document metadata
+        self.documents[video_id].add_metadata("summary", summary)
+
+        # Write aggregated output.json
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(self.documents[video_id].export(), f, indent=4)
+
+    def get_or_generate_sentence_scores(self, video_id: str):
+        """
+        Computes or loads sentence similarity scores.
+        """
+
+        output_path = os.path.join(self.config["output_dir"], video_id, "output.json")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        print("Text score: ", self.documents[video_id].call_track_method("get_embeddings", "text"))
+        # Check if scores and embeddings exist
+        if self.documents[video_id] and all(s["text"] is not None for s in self.documents[video_id].call_track_method("get_score", "text")) and all(len(s["text"]) > 0 for s in self.documents[video_id].call_track_method("get_embeddings", "text")):
+            print(f"Sentence scores already exist for video: {video_id}, skipping.")
+            return
+
+        # Lazy load scorer
+        if self.scorer is None:
+            self.scorer = SentenceScorer(self.config["sentence_scorer"])
+
+        # Compute embeddings and sentence scores
+        print(f"Computing sentence embeddings and scores for video: {video_id}")
+        self.scorer.score(self.documents[video_id])
+
+        # Write aggregated output.json
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(self.documents[video_id].export(), f, indent=4)
+    
+    def get_or_generate_keyframes(self, video_id: str):
+        """
+        Computes or loads keyframe counts per sentence and updates the KeyframeTrack.
+        """
+
+        output_path = os.path.join(self.config["output_dir"], video_id, "output.json")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        if self.documents[video_id] and all(s["keyframe"] is not None for s in self.documents[video_id].call_track_method("get_score", "keyframe")):
+            print(f"Keyframe scores already exist for video: {video_id}, skipping.")
+            return
+
+        # Lazy load keyframe extractor
+        if self.keyframe_extractor is None:
+            self.keyframe_extractor = KeyframeExtractor(self.config["keyframe_extractor"])
+
+        # Extract keyframe counts
+        print(f"Computing keyframe counts for video: {video_id}")
+        video_path = os.path.join(self.config["video_dir"], video_id, self.config["video_filename"])
+        self.keyframe_extractor.extract(video_path, self.documents[video_id].sentences)
+
+        # Write aggregated output.json
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(self.documents[video_id].export(), f, indent=4)
+
+    def filter_sentences(self, video_id: str):
+        """
+        Filters sentences based on their scores and updates the Document metadata.
+        """
+
+        output_path = os.path.join(self.config["output_dir"], video_id, "output.json")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # Check if filtering is already completed
+        if self.documents[video_id] and "filtered_sentences" in self.documents[video_id].metadata:
+            print(f"Filtered sentences already exist for video: {video_id}, skipping.")
+            return
+
+        # Lazy load filterer
+        if self.filterer is None:
+            self.filterer = Filter(self.config["filterer"])
+
+        # Filter sentences based on scores
+        print(f"Filtering sentences for video: {video_id}")
+        filtered_sentences = self.filterer.apply(self.documents[video_id])# .sentences, sentence_scores)
+
+        # Store filtered sentences in metadata
+        self.documents[video_id].add_metadata("filtered_sentences", [(s.start, s.end) for s in filtered_sentences])
+
+        # Write aggregated output.json
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(self.documents[video_id].export(), f, indent=4)
+
+
+    def create_spliced_video(self, video_id: str):
+        """
+        Creates a spliced video based on the filtered sentences.
+        """
+
+        video_path = os.path.join(self.config["video_dir"], video_id, self.config["video_filename"])
+        spliced_video_path = os.path.join(self.config["output_dir"], video_id, self.config["spliced_video_filename"])
+
+        # Check if spliced video already exists
+        if os.path.exists(spliced_video_path):
+            print(f"Spliced video already exists for video: {video_id}, skipping.")
+            return
+
+        # Lazy load splicer
+        if self.splicer is None:
+            self.splicer = Splicer(self.config["splicer"])
+
+        # Get filtered sentences
+        filtered_sentences = [
+            s for s in self.documents[video_id].sentences
+            if s.call_track_method("get_score", "text") is not None
+        ]
+
+        # Extract timestamps from filtered sentences
         timestamps = [(s.start, s.end) for s in filtered_sentences]
-        splicer.splice(video_path, timestamps, spliced_video_path)
+
+        # Perform splicing
+        print(f"Creating spliced video for video: {video_id}")
+        self.splicer.splice(video_path, timestamps, spliced_video_path)

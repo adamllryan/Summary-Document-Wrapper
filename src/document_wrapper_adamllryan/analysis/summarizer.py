@@ -122,9 +122,3 @@ class Summarizer:
                 current_token_count = word_token_len
         print(f"Subsentences: {subsentences}\n---")
         return subsentences
-
-
-
-
-
-

@@ -46,7 +46,7 @@ class Transcriber:
 
         merged = self._merge_results(transcription, diarization)
 
-        return DocumentAnalysis.list_to_document(merged)
+        return DocumentAnalysis.list_to_document_from_segments(merged)
 
 
     def _extract_audio(self, video_path: str) -> str:
@@ -63,8 +63,8 @@ class Transcriber:
     def _merge_results(self, result, diarization) -> List[Dict]:
         """Merges ASR and diarization results to form a structured transcript."""
 
-        assert "chunks" in result, "Transcription result missing 'chunks' key"
-        assert "itertracks" in diarization, "Diarization result missing 'itertracks' key"
+        # assert "chunks" in result, "Transcription result missing 'chunks' key"
+        # assert "itertracks" in diarization, "Diarization result missing 'itertracks' key"
 
         transcript = []
 
