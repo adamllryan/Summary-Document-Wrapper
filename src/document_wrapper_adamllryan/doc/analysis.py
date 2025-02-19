@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any, Callable
 from .document import Document
 from .track import TextTrack, KeyframeTrack
 
@@ -67,7 +67,7 @@ class DocumentAnalysis:
                         })
 
     @staticmethod
-    def list_to_document_from_processed(transcript_data: List[dict]) -> Document:
+    def list_to_document_from_processed(transcript_data: List[dict], metadata: Dict[string, Any]=None) -> Document:
         """Convert a list of transcript data into a Document object."""
 
         assert transcript_data, "Transcript data must not be empty"
@@ -89,6 +89,6 @@ class DocumentAnalysis:
         return Document(transcript_data, {
                         "text": TextTrack,
                         "keyframe": KeyframeTrack,
-                        })
+                        }, metadata)
 
 
