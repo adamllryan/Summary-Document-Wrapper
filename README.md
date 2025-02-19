@@ -71,8 +71,51 @@ To read this structure back into a Document, use the `DocumentAnalysis` method:
 
 The `BatchExecutor` is a default implementation of the pipeline. It handles the processing of multiple videos and automatically fills out the default `Text` and `Keyframe` tracks. Each sentence within a document is associated with a set of tracks, enabling the pipeline to capture various information about the video content.
 
+### Configuration
+
+Here is what the configuration variable should look like for BatchExecutor:
+
+```python
+batch = {
+          "suppress_torch": True, # Variable to try and suppress torch outputs (not fully working yet)
+          "batch_size": 5, # How many videos to process before destroying processor classes
+          "video_dir": "your/path", # Where we should look for source videos
+          "output_dir": "your/path", # What path we should output content at (matches structure of video_dir)
+          "video_filename": "source_video.mp4", # Name of the source videos (they should all be the same)
+          "output_filename": "output.json", # What filename to export Document to
+          "spliced_video_filename": "summary_video.mp4", # What filename to call the spliced video
+          "transcriber": { # Transcriber settings
+              "asr_model": "openai/whisper-large-v3-turbo", # ASR Model
+              "chunk_length_s": 30, 
+              "batch_size": 16, 
+              "diarization_model": "pyannote/speaker-diarization" # Diarization Model (picking out diff speakers)
+          },
+          "summarizer": {
+              "model": "facebook/bart-large-cnn", # Summarization model
+              "token_limit": 512,
+              "max_len": 130,
+              "min_len": 30,
+              "do_sample": False
+          },
+          "sentence_scorer": {
+              "embedding_model": "sentence-transformers/all-mpnet-base-v2" # Embedding Model
+          },
+          "keyframe_extractor": {
+              "skip_frames": 60,
+              "crop_size": (50, 50),
+              "n_clusters": 5
+          },
+          "filterer": {
+              "threshold_percentile": 90 # Percentile to set threshold to
+          },
+          "splicer": {} # No config needed (so far)
+      }
+```
+
 ## Metadata
 
 In addition to sentences and tracks, each document also stores a metadata object. This object contains relevant information about the video and is automatically written alongside the document data.
 
 Note: This README provides a basic overview of the repository and its functionalities. I will add more information about Tracks and other advanced features later.
+
+
