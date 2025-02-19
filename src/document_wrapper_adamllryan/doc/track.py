@@ -7,9 +7,6 @@ class Track:
 
     def __init__(self, score: float = None) -> None:
 
-        assert score is None or isinstance(score, float), "Score must be a float"
-        assert score is None or 0 <= score <= 1, "Score must be between 0 and 1"
-
         self.score = score
 
     def set_data(self, data: Any) -> None:
