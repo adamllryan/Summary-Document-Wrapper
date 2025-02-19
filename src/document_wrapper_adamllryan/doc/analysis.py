@@ -67,7 +67,7 @@ class DocumentAnalysis:
                         })
 
     @staticmethod
-    def list_to_document_from_processed(transcript_data: List[dict], metadata: Dict[string, Any]=None) -> Document:
+    def list_to_document_from_processed(transcript_data: List[dict], metadata: Dict[str, Any]=None) -> Document:
         """Convert a list of transcript data into a Document object."""
 
         assert transcript_data, "Transcript data must not be empty"
