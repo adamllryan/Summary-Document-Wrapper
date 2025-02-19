@@ -24,11 +24,30 @@ class Filter:
         print("Filtering sentences")
 
         # Extract scores from text track
-        scores = {
+        text_scores = {
             tuple(sentence.timestamp): sentence.call_track_method("get_score", "text")["text"]
             for sentence in document.sentences
             if sentence.call_track_method("get_score", "text") is not None
         }
+
+        # Extract scores from keyframe track
+        keyframe_scores = {
+            tuple(sentence.timestamp): sentence.call_track_method("get_score", "keyframe")["keyframe"]
+            for sentence in document.sentences
+            if sentence.call_track_method("get_score", "keyframe") is not None
+        }
+
+        # Normalize keyframe scores to [0, 1]
+        if keyframe_scores:
+            max_score = max(keyframe_scores.values())
+            min_score = min(keyframe_scores.values())
+
+            for timestamp in keyframe_scores:
+                keyframe_scores[timestamp] = (keyframe_scores[timestamp] - min_score) / (max_score - min_score)
+
+        # Combine scores 
+
+        scores = {timestamp: text_scores.get(timestamp, 0) + keyframe_scores.get(timestamp, 0) for timestamp in text_scores}
 
         all_scores = list(scores.values())
 
