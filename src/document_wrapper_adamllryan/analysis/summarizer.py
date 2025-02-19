@@ -2,6 +2,7 @@ from transformers import pipeline, AutoTokenizer
 from transformers import AutoModelForSeq2SeqLM
 from sentence_transformers import SentenceTransformer, util
 import sys
+import torch
 
 from typing import List, Dict, Optional, Tuple
 class Summarizer:
