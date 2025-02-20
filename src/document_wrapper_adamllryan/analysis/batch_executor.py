@@ -62,12 +62,15 @@ class BatchExecutor:
                     # check metadata for error before loading
                     if transcript_data["metadata"].get("error"):
                         print(f"Error in document {video_id}: {transcript_data['metadata']['error']}")
-                        batch.remove(video_id)
+                        batch = [v for v in batch if v != video_id]
                         continue
                     self.documents[video_id] = DocumentAnalysis.list_to_document_from_processed(transcript_data["sentences"], transcript_data["metadata"])
 
             # Step 1: Transcription -> Creates Document objects
             for video_id in batch:
+                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                    batch = [v for v in batch if v != video_id]
+                    continue
                 self.get_or_generate_transcript(video_id)
             if self.transcriber:
                 del self.transcriber
@@ -76,7 +79,11 @@ class BatchExecutor:
 
             # Step 2: Summarization -> Updates Document objects
             for video_id in batch:
-                self.get_or_generate_summary(video_id)
+                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                    batch = [v for v in batch if v != video_id]
+                    continue
+                if self.documents.get(video_id) and not self.documents[video_id].get_metadata("error"):
+                    self.get_or_generate_summary(video_id)
             if self.summarizer:
                 del self.summarizer
                 torch.cuda.empty_cache()
@@ -84,6 +91,9 @@ class BatchExecutor:
 
             # Step 3: Sentence Scoring -> Updates Document objects
             for video_id in batch:
+                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                    batch = [v for v in batch if v != video_id]
+                    continue
                 self.get_or_generate_sentence_scores(video_id)
             if self.scorer:
                 del self.scorer
@@ -92,6 +102,9 @@ class BatchExecutor:
 
             # Step 4: Keyframe Extraction -> Updates Document objects
             for video_id in batch:
+                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                    batch = [v for v in batch if v != video_id]
+                    continue
                 self.get_or_generate_keyframes(video_id)
             if self.keyframe_extractor:
                 del self.keyframe_extractor
@@ -100,6 +113,9 @@ class BatchExecutor:
 
             # Step 5: Filtering -> Updates Document objects
             for video_id in batch:
+                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                    batch = [v for v in batch if v != video_id]
+                    continue
                 self.filter_sentences(video_id)
             if self.filterer:
                 del self.filterer
@@ -108,6 +124,9 @@ class BatchExecutor:
 
             # Step 6: Video Splicing
             for video_id in batch:
+                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                    batch = [v for v in batch if v != video_id]
+                    continue
                 self.create_spliced_video(video_id)
             if self.splicer:
                 del self.splicer
