@@ -4,7 +4,7 @@ from sentence_transformers import SentenceTransformer, util
 import sys
 import torch
 
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Union
 class Summarizer:
     """
     Summarizes transcripts using a transformer-based model.
@@ -76,7 +76,7 @@ class Summarizer:
 
         return summary
 
-    def _generate_summary(self, text: list[str] | str) -> str:
+    def _generate_summary(self, text: Union[list[str], str]) -> str:
         """Generates a summary for a given text chunk."""
         if isinstance(text, str):
           text = [text]
