@@ -42,8 +42,11 @@ class Filter:
             max_score = max(keyframe_scores.values())
             min_score = min(keyframe_scores.values())
 
-            for timestamp in keyframe_scores:
-                keyframe_scores[timestamp] = (keyframe_scores[timestamp] - min_score) / (max_score - min_score)
+            if min_score == max_score:
+                keyframe_scores = {timestamp: (1 if max_score == 0 else 0) for timestamp in keyframe_scores}
+            else: 
+                for timestamp in keyframe_scores:
+                    keyframe_scores[timestamp] = (keyframe_scores[timestamp] - min_score) / (max_score - min_score)
 
         # Combine scores 
 

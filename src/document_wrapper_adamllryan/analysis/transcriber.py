@@ -88,19 +88,25 @@ class Transcriber:
             formatted_start_time = datetime.timedelta(seconds=start_time).total_seconds()
 
             # Try to find the next start time and set that as missing end time
+            # Give up for now, assign float('inf') to end time 
+            if end_time is None:
+                end_time = float('inf')
+                formatted_end_time = float('inf')
+            else:
+                formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
 
-            formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
-            if formatted_end_time is not None and formatted_end_time < formatted_start_time:
-                formatted_end_time = None
-
-            if formatted_end_time is None:
-                idx = result['chunks'].index(element) + 1
-                while result['chunks'][idx]['timestamp'][1] is None and idx < len(result['chunks']) - 1:
-                    idx += 1 
-                if result['chunks'][idx]['timestamp'][1] is not None:
-                    formatted_end_time = result['chunks'][idx]['timestamp'][1]
-                else: # if missing, skip this element
-                    continue
+            # formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
+            # if formatted_end_time is not None and formatted_end_time < formatted_start_time:
+            #     formatted_end_time = None
+            #
+            # if formatted_end_time is None:
+            #     idx = result['chunks'].index(element) + 1
+            #     while result['chunks'][idx]['timestamp'][1] is None and idx < len(result['chunks']) - 1:
+            #         idx += 1 
+            #     if result['chunks'][idx]['timestamp'][1] is not None:
+            #         formatted_end_time = result['chunks'][idx]['timestamp'][1]
+            #     else: # if missing, skip this element
+            #         continue
             
 
             # Merge by finding the speaker with the most overlap

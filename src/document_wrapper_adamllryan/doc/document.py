@@ -78,6 +78,15 @@ class Document:
         assert len(scores) == len(self.sentences), "Scores length must match the number of sentences"
         for sentence, score in zip(self.sentences, scores):
             sentence.set_score(score)
+
+    def get_aggregate_scores(self) -> List[float]:
+        """Retrieve the aggregate scores for all sentences."""
+        return [
+            {
+            "score": s.get_score(),
+            "timestamp": s.timestamp
+            } for s in self.sentences
+        ]
     
     def export(self) -> List[dict]:
         """Export the document to a list of dictionaries."""
