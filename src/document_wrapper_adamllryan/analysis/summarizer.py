@@ -38,7 +38,7 @@ class Summarizer:
     def summarize(self, text: str) -> str:
         """Summarizes input text by breaking it into chunks that fit within the token limit."""
 
-        print("Summarizing")
+        # print("Summarizing")
         # print(f"Text to summarize: {text}\n----")
 
         """ Break into sentences """
@@ -104,6 +104,9 @@ class Summarizer:
 
         for word in words:
             word_token_len = self._count_tokens(word + " ")
+            if word_token_len > max_tokens:
+                print(f"Word is too long: {word}")
+                continue
 
             # If we want to fill remaining size first
             if len(subsentences) == 1:
