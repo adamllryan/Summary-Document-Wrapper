@@ -95,7 +95,7 @@ class Summarizer:
     def _split_large_sentences(self, sentence: str, max_tokens: int, remaining_size: int) -> List[str]:
         """Splits a sentence into smaller chunks that fit within the token limit."""
         words = [word.strip() for word in sentence.split(" ")]
-        print(f"words: {words}\n---")
+        # print(f"words: {words}\n---")
         current_token_count = 0
         subsentences = [""]
         # Grab the remaining words that fit in previous chunk
@@ -121,5 +121,5 @@ class Summarizer:
               else:
                 subsentences.append(word + " ")
                 current_token_count = word_token_len
-        print(f"Subsentences: {subsentences}\n---")
+        # print(f"Subsentences: {subsentences}\n---")
         return subsentences
