@@ -39,15 +39,16 @@ class Transcriber:
     def transcribe(self, video_path: str) -> Document:
         """Extracts transcript from video and assigns speakers."""
         
-        assert os.path.exists(video_path), f"Video file not found: {video_path}"
-        
-        audio_path = self._extract_audio(video_path)
-        diarization = self.diarization_pipeline({'uri': f'file://{audio_path}', 'audio': audio_path})
-        transcription = self.recognizer(audio_path, return_timestamps=True)
-
-        merged = self._merge_results(transcription, diarization)
-
         try:
+
+            assert os.path.exists(video_path), f"Video file not found: {video_path}"
+
+            audio_path = self._extract_audio(video_path)
+            diarization = self.diarization_pipeline({'uri': f'file://{audio_path}', 'audio': audio_path})
+            transcription = self.recognizer(audio_path, return_timestamps=True)
+
+            merged = self._merge_results(transcription, diarization)
+
             assert len(merged) > 0, "No transcriptions found"
 
             for element in merged:
@@ -72,7 +73,12 @@ class Transcriber:
         audio_path = video_path.replace(".mp4", ".wav")
         if os.path.exists(audio_path):
             os.remove(audio_path)
+
+        # check that ffmpeg is installed 
+        assert os.system("ffmpeg -version") == 0, "ffmpeg is not installed"
         os.system(f"ffmpeg -i {video_path} -ab 160k -ac 1 -ar 16000 -vn {audio_path}")
+
+
         return audio_path
 
     def _merge_results(self, result, diarization) -> List[Dict]:
@@ -83,31 +89,39 @@ class Transcriber:
 
         transcript = []
 
-        for element in result['chunks']:
+        chunks = result['chunks']
+        size = len(chunks)
+
+        for element, index in zip(chunks, range(size)):
             start_time, end_time = element['timestamp']
-            formatted_start_time = datetime.timedelta(seconds=start_time).total_seconds()
 
-            # Try to find the next start time and set that as missing end time
-            # Give up for now, assign float('inf') to end time 
+            # Try to fix start time if missing
+            if start_time is None:
+                # If at beginning 
+                if index == 0:
+                    start_time = 0
+                    # If not at beginning, try to find previous end time 
+                elif index > 0 and chunks[index - 1]['timestamp'][1] is not None:
+                    start_time = chunks[index - 1]['timestamp'][1]
+                    # If previous end time is missing, throw an error 
+                else:
+                    raise ValueError(f"Missing start time for chunk {index}")
+
+            # Try to fix end time if missing 
             if end_time is None:
-                end_time = float('inf')
-                formatted_end_time = float('inf')
-            else:
-                formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
+                # If at end 
+                if index == size - 1:
+                    end_time = datetime.timedelta.max 
+                # If not at end, try to find next start time 
+                elif index < size - 1 and chunks[index + 1]['timestamp'][0] is not None:
+                    end_time = chunks[index + 1]['timestamp'][0]
+                    # If next start time is missing, throw an error 
+                else:
+                    raise ValueError(f"Missing end time for chunk {index}")
+                
 
-            # formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
-            # if formatted_end_time is not None and formatted_end_time < formatted_start_time:
-            #     formatted_end_time = None
-            #
-            # if formatted_end_time is None:
-            #     idx = result['chunks'].index(element) + 1
-            #     while result['chunks'][idx]['timestamp'][1] is None and idx < len(result['chunks']) - 1:
-            #         idx += 1 
-            #     if result['chunks'][idx]['timestamp'][1] is not None:
-            #         formatted_end_time = result['chunks'][idx]['timestamp'][1]
-            #     else: # if missing, skip this element
-            #         continue
-            
+            formatted_start_time = datetime.timedelta(seconds=start_time).total_seconds()
+            formatted_end_time = datetime.timedelta(seconds=end_time).total_seconds()
 
             # Merge by finding the speaker with the most overlap
 
