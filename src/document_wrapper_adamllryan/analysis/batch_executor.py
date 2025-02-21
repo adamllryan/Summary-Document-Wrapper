@@ -214,7 +214,7 @@ class BatchExecutor:
 
         output_path = os.path.join(self.config["output_dir"], video_id, "output.json")
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        print("Text score: ", self.documents[video_id].call_track_method("get_embeddings", "text"))
+        # print("Text score: ", self.documents[video_id].call_track_method("get_embeddings", "text"))
         # Check if scores and embeddings exist
         if self.documents[video_id] and all(s["text"] is not None for s in self.documents[video_id].call_track_method("get_score", "text")) and all(len(s["text"]) > 0 for s in self.documents[video_id].call_track_method("get_embeddings", "text")):
             print(f"Sentence scores already exist for video: {video_id}, skipping.")

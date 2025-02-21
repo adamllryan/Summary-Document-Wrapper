@@ -99,10 +99,10 @@ class Transcriber:
             if start_time is None:
                 # If at beginning 
                 if index == 0:
-                    start_time = 0
+                    start_time = 0.0
                     # If not at beginning, try to find previous end time 
                 elif index > 0 and chunks[index - 1]['timestamp'][1] is not None:
-                    start_time = chunks[index - 1]['timestamp'][1]
+                    start_time = float(chunks[index - 1]['timestamp'][1])
                     # If previous end time is missing, throw an error 
                 else:
                     raise ValueError(f"Missing start time for chunk {index}")
@@ -111,10 +111,10 @@ class Transcriber:
             if end_time is None:
                 # If at end 
                 if index == size - 1:
-                    end_time = datetime.timedelta.max 
+                    end_time = float((datetime.timedelta.max - datetime.timedelta(days=1)).total_seconds())
                 # If not at end, try to find next start time 
                 elif index < size - 1 and chunks[index + 1]['timestamp'][0] is not None:
-                    end_time = chunks[index + 1]['timestamp'][0]
+                    end_time = float(chunks[index + 1]['timestamp'][0])
                     # If next start time is missing, throw an error 
                 else:
                     raise ValueError(f"Missing end time for chunk {index}")
