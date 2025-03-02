@@ -34,6 +34,7 @@ class Transcriber:
             compute_type="float16" if use_cuda else "float32",
         )
 
+        # Untested
         # Optional: Load Forced Alignment Model for Word-Level Processing
         self.use_word_level = self.config.get("use_word_level", False)
         if self.use_word_level:
@@ -76,20 +77,19 @@ class Transcriber:
             # Run speaker diarization if enabled
             diarization = None
             if self.use_diarization:
-                print("🎙️ Running Speaker Diarization...")
+                print("Running Speaker Diarization...")
                 diarization = self.diarization_model(audio_path)
 
             # Run WhisperX for transcription
-            print("🎙️ Transcribing with WhisperX (segment-level)...")
+            print("Transcribing with WhisperX (segment-level)...")
             transcription = self.asr_model.transcribe(
                 audio_path,
                 batch_size=self.config["batch_size"],
-                vad_filter=True,  # Improves sentence segmentation
             )
 
             # Optional: Run Forced Alignment for Word-Level Processing
             if self.use_word_level:
-                print("🔄 Running Forced Alignment...")
+                print("Running Forced Alignment...")
                 transcription = whisperx.align(
                     transcription["segments"],
                     self.alignment_model,
