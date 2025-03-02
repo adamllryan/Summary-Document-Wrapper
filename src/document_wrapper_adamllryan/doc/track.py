@@ -1,5 +1,6 @@
 from typing import Any, Callable, Dict, Optional, List
 
+
 class Track:
     """
     Represents a track in a video.
@@ -29,13 +30,12 @@ class Track:
         pass
 
 
-
 class TextTrack(Track):
     """
     Represents a text track in a video.
     """
 
-    def __init__(self, data: Dict[str, str]=None) -> None:
+    def __init__(self, data: Dict[str, str] = None) -> None:
         super().__init__(data.get("score", None) if data is not None else None)
 
         # assert "text" in data, "Text must be provided"
@@ -50,18 +50,17 @@ class TextTrack(Track):
             self.speaker = data.get("speaker", "UNKNOWN")
             self.embeddings = data.get("embeddings", {})
 
-
     def set_text(self, text: str) -> None:
         self.text = text
 
     def get_text(self) -> str:
-        return self.text 
+        return self.text
 
     def set_speaker(self, speaker: str) -> None:
 
         assert isinstance(speaker, str), "Speaker must be a string"
 
-        self.speaker = set_speaker 
+        self.speaker = set_speaker
 
     def get_speaker(self) -> str:
         return self.speaker
@@ -77,7 +76,12 @@ class TextTrack(Track):
         self.score = data.get("score", None)
 
     def get_data(self) -> Dict[str, str]:
-        return {"text": self.text, "speaker": self.speaker, "embeddings": self.embeddings, "score": self.score}
+        return {
+            "text": self.text,
+            "speaker": self.speaker,
+            "embeddings": self.embeddings,
+            "score": self.score,
+        }
 
     def get_formatted_text(self) -> str:
         return f"{self.speaker}: {self.text}"
@@ -89,7 +93,8 @@ class TextTrack(Track):
         self.embeddings = embeddings
 
     def get_embeddings(self) -> Dict[str, Any]:
-        return self.embeddings 
+        return self.embeddings
+
 
 class KeyframeTrack(Track):
     """
@@ -98,7 +103,7 @@ class KeyframeTrack(Track):
 
     def __init__(self, data: Dict[str, Any]) -> None:
         super().__init__(data.get("score", None) if data is not None else None)
-        
+
         if data is not None:
             self.frames = data.get("frames", [])
         else:
@@ -120,15 +125,13 @@ class KeyframeTrack(Track):
     def __str__(self) -> str:
         return f"{len(self.frames)} frames"
 
+
 class TrackFactory:
     """
     Factory class for creating tracks.
     """
 
-    track_types = {
-        "text": TextTrack,
-        "keyframe": KeyframeTrack
-    }
+    track_types = {"text": TextTrack, "keyframe": KeyframeTrack}
 
     def __init__(self, new_track_types: Dict[str, Callable]) -> None:
         TrackFactory.track_types.update(new_track_types)
@@ -138,7 +141,7 @@ class TrackFactory:
         if track_type not in TrackFactory.track_types:
             raise ValueError(f"Track type {track_type} not found")
         return TrackFactory.track_types[track_type](data, **kwargs)
-    
+
     @staticmethod
-    def create_custom_track(data: Any, track_type:Callable, **kwargs) -> Track:
+    def create_custom_track(data: Any, track_type: Callable, **kwargs) -> Track:
         return track_type(data, **kwargs)

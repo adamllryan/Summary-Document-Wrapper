@@ -2,6 +2,7 @@ import os
 import subprocess
 from typing import Optional
 
+
 class VideoDownloader:
     """
     Handles downloading videos from YouTube using yt-dlp and organizing them.
@@ -16,36 +17,38 @@ class VideoDownloader:
         os.makedirs(download_dir, exist_ok=True)
 
     def download_youtube_video(self, video_id: str) -> Optional[str]:
-            """
-            Downloads a YouTube video and saves it under the given directory.
-            :param video_id: YouTube video ID
-            :return: Path to downloaded video or None if failed
-            """
-            video_url = f"https://www.youtube.com/watch?v={video_id}"
-            output_dir = os.path.join(self.download_dir, video_id)
-            output_path = os.path.join(output_dir, "source_video.mp4")
-            os.makedirs(output_dir, exist_ok=True)
+        """
+        Downloads a YouTube video and saves it under the given directory.
+        :param video_id: YouTube video ID
+        :return: Path to downloaded video or None if failed
+        """
+        video_url = f"https://www.youtube.com/watch?v={video_id}"
+        output_dir = os.path.join(self.download_dir, video_id)
+        output_path = os.path.join(output_dir, "source_video.mp4")
+        os.makedirs(output_dir, exist_ok=True)
 
-            try:
-                result = subprocess.run(
-                    [
-                        "yt-dlp",
-                        "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",  # Only download a single video
-                        "-o", output_path,
-                        video_url
-                    ],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-                if result.returncode == 0 and os.path.exists(output_path):
-                    return output_path
-            except subprocess.CalledProcessError as e:
-                print(f"Error downloading video {video_id}: {e.stderr.decode().strip()}")
-            except Exception as e:
-                print(f"Unexpected error downloading video {video_id}: {str(e)}")
-            
-            return None
+        try:
+            result = subprocess.run(
+                [
+                    "yt-dlp",
+                    "-f",
+                    "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",  # Only download a single video
+                    "-o",
+                    output_path,
+                    video_url,
+                ],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            if result.returncode == 0 and os.path.exists(output_path):
+                return output_path
+        except subprocess.CalledProcessError as e:
+            print(f"Error downloading video {video_id}: {e.stderr.decode().strip()}")
+        except Exception as e:
+            print(f"Unexpected error downloading video {video_id}: {str(e)}")
+
+        return None
 
     def is_video_processed(self, video_id: str) -> bool:
         """
@@ -71,9 +74,12 @@ class VideoDownloader:
         :return: The first video ID without a summary, or None if all are processed.
         """
         for video_id in os.listdir(self.download_dir):
-            if os.path.isdir(os.path.join(self.download_dir, video_id)) and not self.is_video_processed(video_id):
+            if os.path.isdir(
+                os.path.join(self.download_dir, video_id)
+            ) and not self.is_video_processed(video_id):
                 return video_id
         return None
+
 
 if __name__ == "__main__":
     downloader = VideoDownloader()
