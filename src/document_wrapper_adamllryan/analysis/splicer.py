@@ -26,6 +26,10 @@ class Splicer:
                 f.write(f"inpoint {start}\n")
                 f.write(f"outpoint {end}\n")
 
+        # Remove video if exists
+        if os.path.exists(output_path):
+            os.remove(output_path)
+
         command = [
             "ffmpeg",
             "-f",
