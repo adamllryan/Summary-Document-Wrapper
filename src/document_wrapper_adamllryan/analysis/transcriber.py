@@ -32,7 +32,8 @@ class Transcriber:
         self.recognizer = pipeline(
             "automatic-speech-recognition",
             model=self.config["asr_model"],
-            chunk_length_s=self.config["chunk_length_s"],
+            chunk_length_s=self.config.get("chunk_length_s", None),
+            stride_length_s=self.config.get("stride_length_s", None),
             batch_size=self.config["batch_size"],
             generate_kwargs=self.config.get("generate_kwargs", {}),
             device=0 if use_cuda else -1,
