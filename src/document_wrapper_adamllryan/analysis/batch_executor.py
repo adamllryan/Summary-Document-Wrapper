@@ -359,7 +359,7 @@ class BatchExecutor:
 
         # Check if spliced video already exists
         if os.path.exists(spliced_video_path) and not self.config["splicer"].get(
-            "reslice", False
+            "resplice", False
         ):
             print(f"Spliced video already exists for video: {video_id}, skipping.")
             return
