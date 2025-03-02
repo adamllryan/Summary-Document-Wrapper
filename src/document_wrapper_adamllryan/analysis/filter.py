@@ -58,27 +58,80 @@ class Filter:
 
         # Combine scores
 
+        alpha = self.config.get("alpha", 0.5)
+
         scores = {
-            timestamp: text_scores.get(timestamp, 0) + keyframe_scores.get(timestamp, 0)
+            timestamp: alpha * text_scores.get(timestamp, 0)
+            + (1 - alpha) * keyframe_scores.get(timestamp, 0)
             for timestamp in text_scores
         }
 
         all_scores = list(scores.values())
 
-        # Compute threshold dynamically if not provided
-        if threshold is None:
-            threshold = np.percentile(
-                all_scores, self.config.get("threshold_percentile", 80)
-            )
-            print(f"Computed threshold: {threshold}")
+        # # Compute threshold dynamically if not provided
+        # if threshold is None:
+        #     threshold = np.percentile(
+        #         all_scores, self.config.get("threshold_percentile", 80)
+        #     )
+        #     print(f"Computed threshold: {threshold}")
 
-        # Select sentences that meet the threshold
-        filtered_sentences = [
-            timestamp for timestamp, score in scores.items() if score >= threshold
-        ]
-        print(
-            f"Filtered {len(filtered_sentences)} sentences out of {len(document.sentences)}"
+        # Dynamic thresholding
+
+        Q1, Q3 = np.percentile(all_scores, [25, 75])
+        iqr_value = Q3 - Q1
+        std_dev = np.std(all_scores)
+        mean_score = np.mean(all_scores)
+
+        # Lower bound filtering
+        lower_cutoff = max(Q1 - 1.5 * iqr_value, mean_score - 1.5 * std_dev)
+        lower_cutoff = max(
+            lower_cutoff,
+            np.percentile(all_scores, self.config.get("min_percentile", 5)),
         )
+
+        # Upper bound: Keep the top 10% untouched
+        upper_cutoff = np.percentile(
+            all_scores, self.config.get("keep_top_percentile", 90)
+        )
+
+        # Ensure at least 30% of sentences remain
+        min_content_kept = max(
+            len(document.sentences) * 0.3,
+            len(document.sentences) - len(all_scores) * 0.15,
+        )
+
+        print(
+            f"Computed lower threshold: {lower_cutoff}, upper threshold: {upper_cutoff}"
+        )
+
+        # # Select sentences that meet the threshold
+        # filtered_sentences = [
+        #     timestamp for timestamp, score in scores.items() if score >= threshold
+        # ]
+
+        # Filter out sentences below lower threshold, but always keep the top 10%
+        filtered_sentences = [
+            ts
+            for ts, score in scores.items()
+            if score >= lower_cutoff or score >= upper_cutoff
+        ]
+
+        # Ensure we are not removing too much content
+        while len(filtered_sentences) < min_content_kept:
+            lower_cutoff *= 0.9  # Loosen the threshold
+            filtered_sentences = [
+                ts
+                for ts, score in scores.items()
+                if score >= lower_cutoff or score >= upper_cutoff
+            ]
+
+        print(
+            f"Filtered {len(document.sentences) - len(filtered_sentences)} sentences out of {len(document.sentences)}."
+        )
+
+        # print(
+        #     f"Filtered {len(filtered_sentences)} sentences out of {len(document.sentences)}"
+        # )
 
         # Store filtered sentences in Document metadata
         if document.get_metadata("filtered_sentences"):
