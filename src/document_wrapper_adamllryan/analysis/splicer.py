@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 from typing import List, Tuple
@@ -8,10 +7,13 @@ class Splicer:
     """
     Splices video segments together based on selected timestamps.
     """
+
     def __init__(self, config: dict):
         self.config = config
 
-    def splice(self, video_path: str, timestamps: List[Tuple[float, float]], output_path: str):
+    def splice(
+        self, video_path: str, timestamps: List[Tuple[float, float]], output_path: str
+    ):
         """Splices a video using FFmpeg based on a list of timestamps."""
 
         print("Splicing video")
@@ -25,8 +27,16 @@ class Splicer:
                 f.write(f"outpoint {end}\n")
 
         command = [
-            "ffmpeg", "-f", "concat", "-safe", "0", "-i", concat_list_file,
-            "-c", "copy", output_path
+            "ffmpeg",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            concat_list_file,
+            "-c",
+            "copy",
+            output_path,
         ]
         try:
             subprocess.run(command, check=True)

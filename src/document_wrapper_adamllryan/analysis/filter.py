@@ -1,6 +1,5 @@
-
 from typing import List
-import numpy as np 
+import numpy as np
 from document_wrapper_adamllryan.doc.document import Document
 
 
@@ -25,14 +24,18 @@ class Filter:
 
         # Extract scores from text track
         text_scores = {
-            tuple(sentence.timestamp): sentence.call_track_method("get_score", "text")["text"]
+            tuple(sentence.timestamp): sentence.call_track_method("get_score", "text")[
+                "text"
+            ]
             for sentence in document.sentences
             if sentence.call_track_method("get_score", "text") is not None
         }
 
         # Extract scores from keyframe track
         keyframe_scores = {
-            tuple(sentence.timestamp): sentence.call_track_method("get_score", "keyframe")["keyframe"]
+            tuple(sentence.timestamp): sentence.call_track_method(
+                "get_score", "keyframe"
+            )["keyframe"]
             for sentence in document.sentences
             if sentence.call_track_method("get_score", "keyframe") is not None
         }
@@ -43,31 +46,46 @@ class Filter:
             min_score = min(keyframe_scores.values())
 
             if min_score == max_score:
-                keyframe_scores = {timestamp: (1 if max_score == 0 else 0) for timestamp in keyframe_scores}
-            else: 
+                keyframe_scores = {
+                    timestamp: (1 if max_score == 0 else 0)
+                    for timestamp in keyframe_scores
+                }
+            else:
                 for timestamp in keyframe_scores:
-                    keyframe_scores[timestamp] = (keyframe_scores[timestamp] - min_score) / (max_score - min_score)
+                    keyframe_scores[timestamp] = (
+                        keyframe_scores[timestamp] - min_score
+                    ) / (max_score - min_score)
 
-        # Combine scores 
+        # Combine scores
 
-        scores = {timestamp: text_scores.get(timestamp, 0) + keyframe_scores.get(timestamp, 0) for timestamp in text_scores}
+        scores = {
+            timestamp: text_scores.get(timestamp, 0) + keyframe_scores.get(timestamp, 0)
+            for timestamp in text_scores
+        }
 
         all_scores = list(scores.values())
 
         # Compute threshold dynamically if not provided
         if threshold is None:
-            threshold = np.percentile(all_scores, self.config.get("threshold_percentile", 80))
+            threshold = np.percentile(
+                all_scores, self.config.get("threshold_percentile", 80)
+            )
             print(f"Computed threshold: {threshold}")
 
         # Select sentences that meet the threshold
         filtered_sentences = [
             timestamp for timestamp, score in scores.items() if score >= threshold
         ]
-        print(f"Filtered {len(filtered_sentences)} sentences out of {len(document.sentences)}")
+        print(
+            f"Filtered {len(filtered_sentences)} sentences out of {len(document.sentences)}"
+        )
 
         # Store filtered sentences in Document metadata
-        document.add_metadata("filtered_sentences", filtered_sentences)
+        if document.get_metadata("filtered_sentences"):
+            document.set_metadata("filtered_sentences", filtered_sentences)
+        else:
+            document.set_metadata("filtered_sentences", filtered_sentences)
 
-        # update document sentence scores 
+        # update document sentence scores
 
         document.set_scores(scores.values())

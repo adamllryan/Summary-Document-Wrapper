@@ -1,24 +1,26 @@
 # Description: Batch processing of videos. This class orchestrates the entire pipeline for a batch of videos.
 
 import json
-import os 
-import time 
-from typing import List, Dict 
-import cv2 
+import os
+import time
+from typing import List, Dict, Any
+import cv2
 import torch
+
 # import warnings
 import logging
-from document_wrapper_adamllryan.doc.analysis import DocumentAnalysis 
-from document_wrapper_adamllryan.analysis.filter import Filter 
-from document_wrapper_adamllryan.analysis.keyframe_extractor import KeyframeExtractor 
-from document_wrapper_adamllryan.analysis.sentence_scorer import SentenceScorer 
-from document_wrapper_adamllryan.analysis.splicer import Splicer 
-from document_wrapper_adamllryan.analysis.summarizer import Summarizer 
-from document_wrapper_adamllryan.analysis.transcriber import Transcriber 
-from document_wrapper_adamllryan.doc.document import Document 
+from document_wrapper_adamllryan.doc.analysis import DocumentAnalysis
+from document_wrapper_adamllryan.analysis.filter import Filter
+from document_wrapper_adamllryan.analysis.keyframe_extractor import KeyframeExtractor
+from document_wrapper_adamllryan.analysis.sentence_scorer import SentenceScorer
+from document_wrapper_adamllryan.analysis.splicer import Splicer
+from document_wrapper_adamllryan.analysis.summarizer import Summarizer
+from document_wrapper_adamllryan.analysis.transcriber import Transcriber
+from document_wrapper_adamllryan.doc.document import Document
+
 
 class BatchExecutor:
-    def __init__(self, video_ids: List[str], config: Dict[str, str]):
+    def __init__(self, video_ids: List[str], config: Dict[str, Any]):
         self.config = config
         self.video_ids = video_ids
         self.batch_size = config.get("batch_size", 1)
@@ -48,27 +50,39 @@ class BatchExecutor:
         final_length = 0
 
         for batch_start in range(0, total_videos, self.batch_size):
-            batch = self.video_ids[batch_start:batch_start + self.batch_size]
-            print(f"Processing batch {batch_start + 1} to {batch_start + len(batch)} of {total_videos}")
+            batch = self.video_ids[batch_start : batch_start + self.batch_size]
+            print(
+                f"Processing batch {batch_start + 1} to {batch_start + len(batch)} of {total_videos}"
+            )
             start_time = time.time()
 
             # Check if we have partially completed batches
 
             for video_id in batch:
-                doc_path = os.path.join(self.config["output_dir"], video_id, self.config["output_filename"])
+                doc_path = os.path.join(
+                    self.config["output_dir"], video_id, self.config["output_filename"]
+                )
                 if os.path.exists(doc_path):
                     with open(doc_path, "r", encoding="utf-8") as f:
                         transcript_data = json.load(f)
                     # check metadata for error before loading
                     if transcript_data["metadata"].get("error"):
-                        print(f"Error in document {video_id}: {transcript_data['metadata']['error']}")
+                        print(
+                            f"Error in document {video_id}: {transcript_data['metadata']['error']}"
+                        )
                         batch = [v for v in batch if v != video_id]
                         continue
-                    self.documents[video_id] = DocumentAnalysis.list_to_document_from_processed(transcript_data["sentences"], transcript_data["metadata"])
+                    self.documents[video_id] = (
+                        DocumentAnalysis.list_to_document_from_processed(
+                            transcript_data["sentences"], transcript_data["metadata"]
+                        )
+                    )
 
             # Step 1: Transcription -> Creates Document objects
             for video_id in batch:
-                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                if self.documents.get(video_id) and self.documents[
+                    video_id
+                ].get_metadata("error"):
                     batch = [v for v in batch if v != video_id]
                     continue
                 self.get_or_generate_transcript(video_id)
@@ -79,10 +93,14 @@ class BatchExecutor:
 
             # Step 2: Summarization -> Updates Document objects
             for video_id in batch:
-                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                if self.documents.get(video_id) and self.documents[
+                    video_id
+                ].get_metadata("error"):
                     batch = [v for v in batch if v != video_id]
                     continue
-                if self.documents.get(video_id) and not self.documents[video_id].get_metadata("error"):
+                if self.documents.get(video_id) and not self.documents[
+                    video_id
+                ].get_metadata("error"):
                     self.get_or_generate_summary(video_id)
             if self.summarizer:
                 del self.summarizer
@@ -91,7 +109,9 @@ class BatchExecutor:
 
             # Step 3: Sentence Scoring -> Updates Document objects
             for video_id in batch:
-                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                if self.documents.get(video_id) and self.documents[
+                    video_id
+                ].get_metadata("error"):
                     batch = [v for v in batch if v != video_id]
                     continue
                 self.get_or_generate_sentence_scores(video_id)
@@ -102,7 +122,9 @@ class BatchExecutor:
 
             # Step 4: Keyframe Extraction -> Updates Document objects
             for video_id in batch:
-                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                if self.documents.get(video_id) and self.documents[
+                    video_id
+                ].get_metadata("error"):
                     batch = [v for v in batch if v != video_id]
                     continue
                 self.get_or_generate_keyframes(video_id)
@@ -113,7 +135,9 @@ class BatchExecutor:
 
             # Step 5: Filtering -> Updates Document objects
             for video_id in batch:
-                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                if self.documents.get(video_id) and self.documents[
+                    video_id
+                ].get_metadata("error"):
                     batch = [v for v in batch if v != video_id]
                     continue
                 self.filter_sentences(video_id)
@@ -124,7 +148,9 @@ class BatchExecutor:
 
             # Step 6: Video Splicing
             for video_id in batch:
-                if self.documents.get(video_id) and self.documents[video_id].get_metadata("error"):
+                if self.documents.get(video_id) and self.documents[
+                    video_id
+                ].get_metadata("error"):
                     batch = [v for v in batch if v != video_id]
                     continue
                 self.create_spliced_video(video_id)
@@ -134,21 +160,30 @@ class BatchExecutor:
                 self.splicer = None
 
             elapsed_time = time.time() - start_time
-            print(f"Completed batch {batch_start + 1} to {batch_start + len(batch)} in {elapsed_time:.2f} seconds\n")
+            print(
+                f"Completed batch {batch_start + 1} to {batch_start + len(batch)} in {elapsed_time:.2f} seconds\n"
+            )
 
             # Metrics display
 
             for video_id in batch:
-                original_path = os.path.join(self.config["output_dir"], video_id, self.config["video_filename"])
-                final_path = os.path.join(self.config["output_dir"], video_id, self.config["spliced_video_filename"])
-                original_length += cv2.VideoCapture(original_path).get(cv2.CAP_PROP_FRAME_COUNT)
-                final_length += cv2.VideoCapture(final_path).get(cv2.CAP_PROP_FRAME_COUNT)
+                original_path = os.path.join(
+                    self.config["output_dir"], video_id, self.config["video_filename"]
+                )
+                final_path = os.path.join(
+                    self.config["output_dir"],
+                    video_id,
+                    self.config["spliced_video_filename"],
+                )
+                original_length += cv2.VideoCapture(original_path).get(
+                    cv2.CAP_PROP_FRAME_COUNT
+                )
+                final_length += cv2.VideoCapture(final_path).get(
+                    cv2.CAP_PROP_FRAME_COUNT
+                )
 
             print(f"Original video aggregate length: {original_length}")
             print(f"Final video aggregate length: {final_length}")
-
-
-
 
     def get_or_generate_transcript(self, video_id: str):
         """
@@ -160,7 +195,7 @@ class BatchExecutor:
 
         # Check if transcript already exists
         if self.documents.get(video_id):
-            if all(s.get_track("text") and s.get_track("text").get_data().get("text", "").strip() for s in self.documents[video_id].sentences):
+            if all(s.get_track("text") for s in self.documents[video_id].sentences):
                 print(f"Transcript already exists for video: {video_id}, skipping.")
                 return
 
@@ -169,7 +204,9 @@ class BatchExecutor:
             self.transcriber = Transcriber(self.config["transcriber"])
 
         # Generate transcript
-        video_path = os.path.join(self.config["video_dir"], video_id, self.config["video_filename"])
+        video_path = os.path.join(
+            self.config["video_dir"], video_id, self.config["video_filename"]
+        )
         print(f"Generating new transcript for video: {video_id}")
 
         self.documents[video_id] = self.transcriber.transcribe(video_path)
@@ -216,7 +253,19 @@ class BatchExecutor:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         # print("Text score: ", self.documents[video_id].call_track_method("get_embeddings", "text"))
         # Check if scores and embeddings exist
-        if self.documents[video_id] and all(s["text"] is not None for s in self.documents[video_id].call_track_method("get_score", "text")) and all(len(s["text"]) > 0 for s in self.documents[video_id].call_track_method("get_embeddings", "text")):
+        if (
+            self.documents[video_id]
+            and all(
+                s["text"] is not None
+                for s in self.documents[video_id].call_track_method("get_score", "text")
+            )
+            and all(
+                len(s["text"]) > 0
+                for s in self.documents[video_id].call_track_method(
+                    "get_embeddings", "text"
+                )
+            )
+        ):
             print(f"Sentence scores already exist for video: {video_id}, skipping.")
             return
 
@@ -231,7 +280,7 @@ class BatchExecutor:
         # Write aggregated output.json
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(self.documents[video_id].export(), f, indent=4)
-    
+
     def get_or_generate_keyframes(self, video_id: str):
         """
         Computes or loads keyframe counts per sentence and updates the KeyframeTrack.
@@ -240,17 +289,24 @@ class BatchExecutor:
         output_path = os.path.join(self.config["output_dir"], video_id, "output.json")
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-        if self.documents[video_id] and all(s["keyframe"] is not None for s in self.documents[video_id].call_track_method("get_score", "keyframe")):
+        if self.documents[video_id] and all(
+            s["keyframe"] is not None
+            for s in self.documents[video_id].call_track_method("get_score", "keyframe")
+        ):
             print(f"Keyframe scores already exist for video: {video_id}, skipping.")
             return
 
         # Lazy load keyframe extractor
         if self.keyframe_extractor is None:
-            self.keyframe_extractor = KeyframeExtractor(self.config["keyframe_extractor"])
+            self.keyframe_extractor = KeyframeExtractor(
+                self.config["keyframe_extractor"]
+            )
 
         # Extract keyframe counts
         print(f"Computing keyframe counts for video: {video_id}")
-        video_path = os.path.join(self.config["video_dir"], video_id, self.config["video_filename"])
+        video_path = os.path.join(
+            self.config["video_dir"], video_id, self.config["video_filename"]
+        )
         self.keyframe_extractor.extract(video_path, self.documents[video_id])
 
         # Write aggregated output.json
@@ -266,7 +322,11 @@ class BatchExecutor:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
         # Check if filtering is already completed
-        if self.documents[video_id] and "filtered_sentences" in self.documents[video_id].metadata:
+        if (
+            self.documents[video_id]
+            and "filtered_sentences" in self.documents[video_id].metadata
+            and not self.config["filterer"].get("refilter", False)
+        ):
             print(f"Filtered sentences already exist for video: {video_id}, skipping.")
             return
 
@@ -276,7 +336,7 @@ class BatchExecutor:
 
         # Filter sentences based on scores
         print(f"Filtering sentences for video: {video_id}")
-        self.filterer.apply(self.documents[video_id])# .sentences, sentence_scores)
+        self.filterer.apply(self.documents[video_id])  # .sentences, sentence_scores)
 
         # Store filtered sentences in metadata
         # self.documents[video_id].add_metadata("filtered_sentences", [(s.start, s.end) for s in filtered_sentences])
@@ -285,14 +345,17 @@ class BatchExecutor:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(self.documents[video_id].export(), f, indent=4)
 
-
     def create_spliced_video(self, video_id: str):
         """
         Creates a spliced video based on the filtered sentences.
         """
 
-        video_path = os.path.join(self.config["video_dir"], video_id, self.config["video_filename"])
-        spliced_video_path = os.path.join(self.config["output_dir"], video_id, self.config["spliced_video_filename"])
+        video_path = os.path.join(
+            self.config["video_dir"], video_id, self.config["video_filename"]
+        )
+        spliced_video_path = os.path.join(
+            self.config["output_dir"], video_id, self.config["spliced_video_filename"]
+        )
 
         # Check if spliced video already exists
         if os.path.exists(spliced_video_path):
@@ -305,7 +368,8 @@ class BatchExecutor:
 
         # Get filtered sentences
         filtered_sentences = [
-            s for s in self.documents[video_id].sentences
+            s
+            for s in self.documents[video_id].sentences
             if s.call_track_method("get_score", "text") is not None
         ]
 
