@@ -78,15 +78,10 @@ class Filter:
 
         # Define the lower cutoff using standard deviation
         std_factor = self.config.get(
-            "std_factor", 1
+            "std_factor", 0.5
         )  # Default to 1.5 std dev below mean
 
         lower_cutoff = mean_score - std_factor * std_dev
-
-        # Ensure the top 15% of the best scores remain untouched
-        upper_cutoff = np.percentile(
-            all_scores, self.config.get("keep_top_percentile", 85)
-        )
 
         print(
             f"Computed mean: {mean_score:.4f}, std_dev: {std_dev:.4f}, lower threshold: {lower_cutoff:.4f}"
@@ -94,9 +89,7 @@ class Filter:
 
         # Filter out sentences below the threshold, but keep the top content
         filtered_sentences = [
-            ts
-            for ts, score in scores.items()
-            if score >= lower_cutoff or score >= upper_cutoff
+            ts for ts, score in scores.items() if score >= lower_cutoff
         ]
 
         print(
