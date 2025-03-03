@@ -86,6 +86,12 @@ class Splicer:
         ]
 
         try:
-            subprocess.run(command, check=True)
+            subprocess.run(
+                command,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            print(f"Spliced video saved to {output_path}")
         except subprocess.CalledProcessError as e:
             print(f"Error splicing video: {e}")
