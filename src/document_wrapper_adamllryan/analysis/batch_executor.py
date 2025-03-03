@@ -369,14 +369,7 @@ class BatchExecutor:
             self.splicer = Splicer(self.config["splicer"])
 
         # Get filtered sentences
-        filtered_sentences = [
-            s
-            for s in self.documents[video_id].sentences
-            if s.call_track_method("get_score", "text") is not None
-        ]
-
-        # Extract timestamps from filtered sentences
-        timestamps = [(s.start, s.end) for s in filtered_sentences]
+        timestamps = self.documents[video_id].get_metadata("filtered_sentences")
 
         # Perform splicing
         print(f"Creating spliced video for video: {video_id}")
