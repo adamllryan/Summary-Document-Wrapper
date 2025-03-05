@@ -92,6 +92,13 @@ class Filter:
             ts for ts, score in scores.items() if score >= lower_cutoff
         ]
 
+        if len(filtered_sentences) == 0:
+            filtered_sentences = [
+                ts
+                for ts, score in scores.items()
+                if score >= np.percentile(all_scores, 70)
+            ]
+
         print(
             f"Filtered {len(document.sentences) - len(filtered_sentences)} sentences out of {len(document.sentences)}."
         )

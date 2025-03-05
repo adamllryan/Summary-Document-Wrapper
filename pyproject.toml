@@ -20,6 +20,9 @@ dependencies = [
     "torch",
     "moviepy",
     "spacy",
+    "opencv-python",
+    "transformers",
+    "sentencepiece",
 ]
 
 [project.urls]
