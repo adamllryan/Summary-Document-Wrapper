@@ -23,7 +23,7 @@ dependencies = [
     "opencv-python",
     "transformers",
     "sentencepiece",
-    "git+https://github.com/m-bain/whisperX.git"
+    # "git+https://github.com/m-bain/whisperX.git"
 ]
 
 [project.urls]
